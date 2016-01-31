@@ -1,0 +1,16 @@
+// This file has been generated automatically by CMake. Do not edit it manually as all
+// changes will be overwritten.
+
+#ifndef @PROJECT_NAME_UPPERCASE@_VERSION_H
+#define @PROJECT_NAME_UPPERCASE@_VERSION_H
+
+#define PROJECT_NAME "@PROJECT_NAME@"
+
+#define VERSION "@VERSION@"
+#define VERSION_MAJOR @VERSION_MAJOR@
+#define VERSION_MINOR @VERSION_MINOR@
+#define VERSION_PATCH @VERSION_PATCH@
+#define VERSION_EXTRA "@VERSION_EXTRA@"
+
+
+#endif // @PROJECT_NAME_UPPERCASE@_VERSION_H

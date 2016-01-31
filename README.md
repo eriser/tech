@@ -1,0 +1,2 @@
+## About
+Tech is a small crossplatform framework for building applications with graphical user interface. It's designed for audio plugins (VST) with GUI, but it's also possible to use it with plain applications as well.

@@ -1,0 +1,17 @@
+#ifndef TECH_PLATFORM_H
+#define TECH_PLATFORM_H
+
+#cmakedefine PLATFORM_BIG_ENDIAN
+#cmakedefine PLATFORM_LITTLE_ENDIAN
+
+#cmakedefine PLATFORM_WINDOWS
+#cmakedefine PLATFORM_LINUX
+#cmakedefine PLATFORM_OSX
+
+#define PLATFORM_NAME "@PLATFORM_NAME@"
+
+#define QUOTE(x) #x
+#define PLATFORM_HEADER(name) QUOTE(name##_@PLATFORM_NAME@.h)
+
+
+#endif // TECH_PLATFORM_H
