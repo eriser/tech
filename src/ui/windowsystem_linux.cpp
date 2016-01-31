@@ -47,7 +47,7 @@ WindowSystemPrivate::WindowSystemPrivate()
 	fcntl(pipeFds_[1], F_SETFL, flags | O_NONBLOCK);
 
 	ev.data.fd = pipeFds_[0];
-	ev.events = EPOLLIN | EPOLLET;
+	ev.events = EPOLLIN;
 	if(epoll_ctl(epollFd_, EPOLL_CTL_ADD, pipeFds_[0], &ev) == -1 && errno != EEXIST) {
 		LOG("epoll_ctl call failed: %s", ::strerror(errno));
 		close(epollFd_);
