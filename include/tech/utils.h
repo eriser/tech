@@ -18,6 +18,22 @@ template<typename T>
 constexpr T kPi = T(3.1415926535897932385);
 
 
+#ifndef PLATFORM_WINDOWS
+static const char kPathDelimiter = '/';
+#else
+static const char kPathDelimiter = '\\';
+#endif // PLATFORM_WINDOWS
+
+
+static constexpr
+int basenameIndex(const char* const path, const int index = 0, const int slashIndex = -1)
+{
+	return path[index] ? (path[index] == kPathDelimiter ?
+						  basenameIndex(path, index + 1, index) :
+						  basenameIndex(path, index + 1, slashIndex)) : (slashIndex + 1);
+}
+
+
 /**
  * Returns the minimum of @p a and @p b.
  */
