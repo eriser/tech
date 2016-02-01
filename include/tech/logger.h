@@ -1,39 +1,31 @@
 #ifndef TECH_LOGGER_H
 #define TECH_LOGGER_H
 
-#include <cstdio>
+#include <tech/format.h>
+#include <tech/utils.h>
 
-#define LOG(format, ...) fprintf(stderr, format "\n", ##__VA_ARGS__)
 
+#define LOG(format, ...) Tech::logMessage(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
 
-/*
-#include <vector>
-
-#ifndef NDEBUG
-#define LOG(format, ...) Tech::Logger::log(format "\n", ##__VA_ARGS__)
 
 namespace Tech {
 
 
-class Logger {
-public:
-	Logger();
-	~Logger();
+using LogMessageHandler = void(*)(const String&);
 
-	static void log(const char* format, ...);
 
-private:
-	int fd_;
-	std::vector<char> buffer_;
-};
+void setLogMessageHandler(LogMessageHandler handler);
+void logMessage(const char* file, int line, const String& message);
+
+
+template<typename ...Args>
+void logMessage(const char* file, int line, const char* format, const Args&... args)
+{
+	logMessage(file, line, Formatter::format(format, args...));
+}
 
 
 } // namespace Tech
 
-
-#else
-#define LOG(format, ...)
-#endif //  NDEBUG
-*/
 
 #endif // TECH_LOGGER_H
