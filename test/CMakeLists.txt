@@ -14,7 +14,7 @@ set(SOURCES
 	delegate_test.cpp
 	bytearray_test.cpp
 	string_test.cpp
-	stringformat_test.cpp
+	format_test.cpp
 )
 
 set(LIBRARIES
