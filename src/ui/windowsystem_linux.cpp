@@ -35,7 +35,7 @@ WindowSystemPrivate::WindowSystemPrivate()
 	ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
 
 	if(epoll_ctl(epollFd_, EPOLL_CTL_ADD, xcbFd_, &ev) == -1 && errno != EEXIST) {
-		LOG("epoll_ctl call failed: %s", ::strerror(errno));
+		LOG("epoll_ctl call failed: {0}", ::strerror(errno));
 		close(epollFd_);
 		xcb_disconnect(connection_);
 		return;
@@ -49,7 +49,7 @@ WindowSystemPrivate::WindowSystemPrivate()
 	ev.data.fd = pipeFds_[0];
 	ev.events = EPOLLIN;
 	if(epoll_ctl(epollFd_, EPOLL_CTL_ADD, pipeFds_[0], &ev) == -1 && errno != EEXIST) {
-		LOG("epoll_ctl call failed: %s", ::strerror(errno));
+		LOG("epoll_ctl call failed: {0}", ::strerror(errno));
 		close(epollFd_);
 		xcb_disconnect(connection_);
 		return;
@@ -171,6 +171,7 @@ Widget* WindowSystemPrivate::findWindow(Widget::Handle handle) const
 {
 	const WindowData* data = dataByHandle(handle);
 	if(!data) {
+		LOG("Unable to find window with handle={0:#08X}", handle);
 		return nullptr;
 	}
 
@@ -182,6 +183,7 @@ cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
 {
 	const WindowData* data = dataByHandle(handle);
 	if(!data) {
+		LOG("Unable to get surface of window with handle={0:#08X}", handle);
 		return nullptr;
 	}
 
@@ -396,7 +398,7 @@ void WindowSystemPrivate::processEvents()
 	while(running) {
 		int count = epoll_wait(epollFd_, events, 16, -1);
 		if(count < 0 && errno != EINTR) {
-			LOG("epoll_wait call failed: %s", ::strerror(errno));
+			LOG("epoll_wait call failed: {0}", ::strerror(errno));
 			break;
 		}
 
