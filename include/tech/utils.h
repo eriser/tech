@@ -10,6 +10,11 @@
 
 #define MAKE_MAGIC(a, b, c, d) (a << 24 | b << 16 | c << 8 | d)
 
+#define __FILENAME__ ({                                         \
+		static const int index = Tech::basenameIndex(__FILE__); \
+		static_assert(index >= 0, "compile-time basename");     \
+        __FILE__ + index; })
+
 
 namespace Tech {
 
