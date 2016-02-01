@@ -1,6 +1,7 @@
 #include <tech/ui/image.h>
 
 #include <cairo.h>
+#include <tech/logger.h>
 
 
 namespace Tech {
@@ -22,10 +23,13 @@ Image::Image(const Size<int>& size) :
 Image::Image(const String& fileName)
 {
 	surface_ = cairo_image_surface_create_from_png(fileName.toUtf8());
-	if(surface_) {
-		size_.setWidth(cairo_image_surface_get_width(surface_));
-		size_.setHeight(cairo_image_surface_get_height(surface_));
+	if(!surface_) {
+		LOG("Unable to open image file '{0}'", fileName);
+		return;
 	}
+
+	size_.setWidth(cairo_image_surface_get_width(surface_));
+	size_.setHeight(cairo_image_surface_get_height(surface_));
 }
 
 
