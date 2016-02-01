@@ -4,7 +4,7 @@
 namespace Tech {
 
 
-static LogMessageHandler logMessageHandler;
+static LogMessageHandler logMessageHandler = nullptr;
 
 
 void setLogMessageHandler(LogMessageHandler handler)
