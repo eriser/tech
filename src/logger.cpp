@@ -13,10 +13,10 @@ void setLogMessageHandler(LogMessageHandler handler)
 }
 
 
-void logMessage(const char* file, int line, const String& message)
+void logMessage(const char* fileName, int line, const String& message)
 {
 	if(logMessageHandler)
-		logMessageHandler(message);
+		logMessageHandler(fileName, line, message);
 }
 
 

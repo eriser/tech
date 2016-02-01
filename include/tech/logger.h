@@ -11,17 +11,17 @@
 namespace Tech {
 
 
-using LogMessageHandler = void(*)(const String&);
+using LogMessageHandler = void(*)(const String&, int, const String&);
 
 
 void setLogMessageHandler(LogMessageHandler handler);
-void logMessage(const char* file, int line, const String& message);
+void logMessage(const char* fileName, int line, const String& message);
 
 
 template<typename ...Args>
-void logMessage(const char* file, int line, const char* format, const Args&... args)
+void logMessage(const char* fileName, int line, const char* format, const Args&... args)
 {
-	logMessage(file, line, Formatter::format(format, args...));
+	logMessage(fileName, line, Formatter::format(format, args...));
 }
 
 
