@@ -7,7 +7,7 @@ namespace Tech {
 static LogMessageHandler logMessageHandler = nullptr;
 
 
-void setLogMessageHandler(LogMessageHandler handler)
+void setLogMessageHandler(const LogMessageHandler&  handler)
 {
 	logMessageHandler = handler;
 }
@@ -15,8 +15,7 @@ void setLogMessageHandler(LogMessageHandler handler)
 
 void logMessage(const char* fileName, int line, const String& message)
 {
-	if(logMessageHandler)
-		logMessageHandler(fileName, line, message);
+	logMessageHandler(fileName, line, message);
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef TECH_LOGGER_H
 #define TECH_LOGGER_H
 
+#include <tech/delegate.h>
 #include <tech/format.h>
 #include <tech/utils.h>
 
@@ -11,10 +12,11 @@
 namespace Tech {
 
 
-using LogMessageHandler = void(*)(const String&, int, const String&);
+using LogMessageHandler =
+		Delegate<void(const String& file, int line, const String& message)>;
 
 
-void setLogMessageHandler(LogMessageHandler handler);
+void setLogMessageHandler(const LogMessageHandler& handler);
 void logMessage(const char* fileName, int line, const String& message);
 
 
