@@ -30,6 +30,10 @@ static const char kPathDelimiter = '\\';
 #endif // PLATFORM_WINDOWS
 
 
+/**
+ * Returns the index of the last path delimiter + 1 (an index of file's base name).
+ * Effect of this function should be computed at compile time.
+ */
 static constexpr
 int basenameIndex(const char* const path, const int index = 0, const int slashIndex = -1)
 {
