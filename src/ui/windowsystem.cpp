@@ -2,6 +2,7 @@
 
 #include <tech/platform.h>
 #include PLATFORM_HEADER(windowsystem)
+#include <tech/logger.h>
 
 
 namespace Tech {
@@ -10,6 +11,13 @@ namespace Tech {
 WindowSystem::WindowSystem() :
 	Interface<WindowSystemPrivate>(new WindowSystemPrivate)
 {
+}
+
+
+WindowSystem* WindowSystem::instance()
+{
+	static WindowSystem instance;
+	return &instance;
 }
 
 
@@ -34,6 +42,7 @@ void WindowSystem::sync()
 Widget::Handle WindowSystem::createWindow(Widget* widget, Widget::Handle parent)
 {
 	if(!widget->geometry().isValid()) {
+		LOG("Unable to create window with invalid geometry");
 		return Widget::kInvalidHandle;
 	}
 
@@ -44,6 +53,7 @@ Widget::Handle WindowSystem::createWindow(Widget* widget, Widget::Handle parent)
 void WindowSystem::destroyWindow(Widget::Handle handle)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to destroy invalid window");
 		return;
 	}
 
@@ -51,16 +61,10 @@ void WindowSystem::destroyWindow(Widget::Handle handle)
 }
 
 
-WindowSystem* WindowSystem::instance()
-{
-	static WindowSystem instance;
-	return &instance;
-}
-
-
 Widget* WindowSystem::findWindow(Widget::Handle handle) const
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to find invalid window");
 		return nullptr;
 	}
 
@@ -71,6 +75,7 @@ Widget* WindowSystem::findWindow(Widget::Handle handle) const
 cairo_surface_t* WindowSystem::windowSurface(Widget::Handle handle) const
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to get surface of invalid window");
 		return nullptr;
 	}
 
@@ -82,6 +87,7 @@ void WindowSystem::setWindowSizeLimits(Widget::Handle handle, const Size<int>& m
 		const Size<int>& maxSize)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to set size limits for invalid window");
 		return;
 	}
 
@@ -92,6 +98,7 @@ void WindowSystem::setWindowSizeLimits(Widget::Handle handle, const Size<int>& m
 void WindowSystem::moveWindow(Widget::Handle handle, const Point<int>& pos)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to move invalid window");
 		return;
 	}
 
@@ -102,6 +109,7 @@ void WindowSystem::moveWindow(Widget::Handle handle, const Point<int>& pos)
 void WindowSystem::resizeWindow(Widget::Handle handle, const Size<int>& size)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to resize invalid window");
 		return;
 	}
 
@@ -112,6 +120,7 @@ void WindowSystem::resizeWindow(Widget::Handle handle, const Size<int>& size)
 void WindowSystem::setWindowVisible(Widget::Handle handle, bool visible)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to change visibility of invalid window");
 		return;
 	}
 
@@ -122,6 +131,7 @@ void WindowSystem::setWindowVisible(Widget::Handle handle, bool visible)
 void WindowSystem::setWindowFrameless(Widget::Handle handle, bool enabled)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to make invalid window frameless");
 		return;
 	}
 
@@ -132,6 +142,7 @@ void WindowSystem::setWindowFrameless(Widget::Handle handle, bool enabled)
 void WindowSystem::setWindowTaskbarButton(Widget::Handle handle, bool enabled)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to remove taskbar button for invalid window");
 		return;
 	}
 
@@ -142,6 +153,7 @@ void WindowSystem::setWindowTaskbarButton(Widget::Handle handle, bool enabled)
 void WindowSystem::setWindowTitle(Widget::Handle handle, const String& title)
 {
 	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to set title of invalid window");
 		return;
 	}
 
@@ -152,6 +164,7 @@ void WindowSystem::setWindowTitle(Widget::Handle handle, const String& title)
 void WindowSystem::enqueueWidgetRepaint(Widget* widget)
 {
 	if(!widget) {
+		LOG("Unable enqueue repainting for null widget");
 		return;
 	}
 
@@ -162,6 +175,7 @@ void WindowSystem::enqueueWidgetRepaint(Widget* widget)
 void WindowSystem::enqueueWidgetDeletion(Widget* widget)
 {
 	if(!widget) {
+		LOG("Unable enqueue deletion of null widget");
 		return;
 	}
 
@@ -178,6 +192,7 @@ Timer::Handle WindowSystem::createTimer(Timer* timer)
 void WindowSystem::destroyTimer(Timer::Handle handle)
 {
 	if(handle == Timer::kInvalidHandle) {
+		LOG("Unable destroy invalid timer");
 		return;
 	}
 
@@ -188,6 +203,7 @@ void WindowSystem::destroyTimer(Timer::Handle handle)
 void WindowSystem::startTimer(Timer::Handle handle, Duration timeout, bool periodic)
 {
 	if(handle == Timer::kInvalidHandle) {
+		LOG("Unable start invalid timer");
 		return;
 	}
 
@@ -198,6 +214,7 @@ void WindowSystem::startTimer(Timer::Handle handle, Duration timeout, bool perio
 void WindowSystem::stopTimer(Timer::Handle handle)
 {
 	if(handle == Timer::kInvalidHandle) {
+		LOG("Unable stop invalid timer");
 		return;
 	}
 
@@ -208,6 +225,7 @@ void WindowSystem::stopTimer(Timer::Handle handle)
 bool WindowSystem::isTimerActive(Timer::Handle handle) const
 {
 	if(handle == Timer::kInvalidHandle) {
+		LOG("Unable get active status of invalid timer");
 		return false;
 	}
 
@@ -218,10 +236,12 @@ bool WindowSystem::isTimerActive(Timer::Handle handle) const
 Duration WindowSystem::timerInterval(Timer::Handle handle) const
 {
 	if(handle == Timer::kInvalidHandle) {
+		LOG("Unable get interval of invalid timer");
 		return Duration();
 	}
 
 	return impl()->timerInterval(handle);
 }
+
 
 } // namespace Tech
