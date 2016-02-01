@@ -217,7 +217,7 @@ String Formatter::alignString(const String& string, const Flags& flags)
 		size_t pos = 0;
 
 		if(flags.alignment == Flags::kAlignRight ||
-				flags.alignment == Flags::kAlignSignAware) {
+		   flags.alignment == Flags::kAlignSignAware) {
 			pos = fillCount;
 		}
 		else if(flags.alignment == Flags::kAlignCenter) {
@@ -344,6 +344,82 @@ String Formatter::unsignedToString(u64 value, int base, const Formatter::Flags& 
 	} while(value);
 
 	return result;
+}
+
+
+String formatValue(const String& value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	if(value.length() < flags.minimumWidth) {
+		String result(flags.minimumWidth, flags.fill);
+		size_t pos = 0;
+
+		if(flags.alignment == Formatter::Flags::kAlignRight) {
+			pos = flags.minimumWidth - value.length();
+		}
+		else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+			pos = (flags.minimumWidth - value.length()) / 2;
+		}
+
+		return result.replace(pos, value.length(), value);
+	}
+/*	else if(flags.maximumWidth && value.length() > flags.maximumWidth) {
+		size_t pos = 0;
+
+		if(flags.alignment == FormatFlags::kRight) {
+			pos = value.length() - flags.maximumWidth;
+		}
+		else if(flags.alignment == FormatFlags::kCenter ||
+				flags.alignment == FormatFlags::kJustify) {
+			pos = (value.length() - flags.maximumWidth) / 2;
+		}
+
+		return value.middle(pos, flags.maximumWidth);
+	}*/
+
+	return value;
+}
+
+
+String formatValue(const ByteArray& value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	if(value.length() < flags.minimumWidth) {
+		String result(flags.minimumWidth, flags.fill);
+		size_t pos = 0;
+
+		if(flags.alignment == Formatter::Flags::kAlignRight) {
+			pos = flags.minimumWidth - value.length();
+		}
+		else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+			pos = (flags.minimumWidth - value.length()) / 2;
+		}
+
+		return result.replace(pos, value.length(), value);
+	}
+/*	else if(flags.maximumWidth && value.length() > flags.maximumWidth) {
+		size_t pos = 0;
+
+		if(flags.alignment == FormatFlags::kRight) {
+			pos = value.length() - flags.maximumWidth;
+		}
+		else if(flags.alignment == FormatFlags::kCenter ||
+				flags.alignment == FormatFlags::kJustify) {
+			pos = (value.length() - flags.maximumWidth) / 2;
+		}
+
+		return value.middle(pos, flags.maximumWidth);
+	}*/
+
+	return value;
+}
+
+
+String formatValue(const char* value, const String& spec)
+{
+	return formatValue(String(value), spec);
 }
 
 

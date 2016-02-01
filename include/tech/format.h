@@ -140,6 +140,8 @@ String formatValue(T value, const String& spec)
 	return "";
 }
 
+String formatValue(const String& value, const String& spec);
+String formatValue(const ByteArray& value, const String& spec);
 String formatValue(const char* value, const String& spec);
 
 
@@ -288,7 +290,7 @@ const Char* Formatter::Impl<N>::parseInteger(const Char* begin, const Char* end,
 }
 
 
-}; // namespace Tech
+} // namespace Tech
 
 
 #endif // TECH_FORMAT_H
