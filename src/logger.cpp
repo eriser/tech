@@ -7,7 +7,7 @@ namespace Tech {
 static LogMessageHandler logMessageHandler;
 
 
-void setLogMessagesHandler(LogMessageHandler handler)
+void setLogMessageHandler(LogMessageHandler handler)
 {
 	logMessageHandler = handler;
 }
