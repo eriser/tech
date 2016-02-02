@@ -427,7 +427,7 @@ void WindowSystemPrivate::processEvents()
 						repaintQueue_.erase(it);
 					}
 				}
-				else if(command == Command::kRepaintWidgets) {
+				else if(command == Command::kDeleteWidgets) {
 					while(!deletionQueue_.empty()) {
 						auto it = deletionQueue_.begin();
 						delete (*it);
