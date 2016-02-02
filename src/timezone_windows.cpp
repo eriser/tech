@@ -35,14 +35,14 @@ Duration TimeZoneImpl::toUtc(const Duration& local, bool isDst) const
 TimeZone TimeZoneImpl::local()
 {
 	// FIXME
-	return TimeZone();
+	return TimeZone("");
 }
 
 
 TimeZone TimeZoneImpl::utc()
 {
 	// FIXME
-	return TimeZone();
+	return TimeZone("");
 }
 
 
