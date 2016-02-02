@@ -8,6 +8,9 @@ Formatter::Flags Formatter::parseDefaultSpec(const String& spec)
 {
 	Flags flags;
 
+	if(spec.isEmpty())
+		return flags;
+
 	const Char* pos = spec.constData();
 	const Char* end = pos + spec.length();
 
