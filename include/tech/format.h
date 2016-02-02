@@ -126,10 +126,10 @@ private:
 };
 
 
-String formatValue(bool value, const String& spec);
-String formatValue(int value, const String& spec);
-String formatValue(float value, const String& spec);
-String formatValue(double value, const String& spec);
+String formatValue(bool value, const String& spec = String());
+String formatValue(int value, const String& spec = String());
+String formatValue(float value, const String& spec = String());
+String formatValue(double value, const String& spec = String());
 
 
 template<typename T, EnableIf<
@@ -145,9 +145,9 @@ String formatValue(T value, const String& spec)
 	return "";
 }
 
-String formatValue(const String& value, const String& spec);
-String formatValue(const ByteArray& value, const String& spec);
-String formatValue(const char* value, const String& spec);
+String formatValue(const String& value, const String& spec = String());
+String formatValue(const ByteArray& value, const String& spec = String());
+String formatValue(const char* value, const String& spec = String());
 
 
 //
