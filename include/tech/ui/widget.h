@@ -105,8 +105,11 @@ public:
 	void resize(const Size<int>& size);
 
 	Widget* parent() const;
-	void setParent(Widget* parent, const Point<int>& pos = Point<int>());
-	void setParent(Widget* parent, int x, int y);
+
+	void setParent(Widget* parent, const Point<int>& pos = Point<int>(),
+			Handle embedder = kInvalidHandle);
+
+	void setParent(Widget* parent, int x, int y, Handle embedder = kInvalidHandle);
 
 	Widget* childAt(const Point<int>& point, bool recursive = true) const;
 

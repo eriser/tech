@@ -80,14 +80,7 @@ Widget::Widget(int x, int y, int width, int height, Widget::Handle owner) :
 	focus_(nullptr),
 	maximumSize_(Limits<int>::max(), Limits<int>::max())
 {
-	handle_ = WINDOW_SYSTEM->createWindow(this, owner);
-	if(handle_ == kInvalidHandle) {
-		LOG("Unable to create native window");
-		return;
-	}
-
-	surface_ = WINDOW_SYSTEM->windowSurface(handle_);
-	WINDOW_SYSTEM->sync();
+	setParent(nullptr, x, y, owner);
 }
 
 
@@ -566,7 +559,7 @@ Widget* Widget::parent() const
 }
 
 
-void Widget::setParent(Widget* newParent, const Point<int>& pos)
+void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder)
 {
 	if(surface_ && newParent == parent_)
 		return;
@@ -592,7 +585,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos)
 		if(layout_)
 			layout_->remove(this);
 	}
-	else if(handle_) {
+	else if(handle_ != kInvalidHandle) {
 		WINDOW_SYSTEM->destroyWindow(handle_);
 		handle_ = kInvalidHandle;
 	}
@@ -633,7 +626,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos)
 	}
 	else { // Create window for widget without the parent
 		next_ = nullptr;
-		handle_ = WINDOW_SYSTEM->createWindow(this);
+		handle_ = WINDOW_SYSTEM->createWindow(this, embedder);
 		if(handle_ == kInvalidHandle) {
 			LOG("Unable to create native window");
 			return;
@@ -641,14 +634,17 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos)
 
 		surface_ = WINDOW_SYSTEM->windowSurface(handle_);
 
-		WINDOW_SYSTEM->moveWindow(handle_, pos_);
-		WINDOW_SYSTEM->resizeWindow(handle_, size_);
+		if(embedder == kInvalidHandle) {
+			WINDOW_SYSTEM->moveWindow(handle_, pos_);
+			WINDOW_SYSTEM->resizeWindow(handle_, size_);
 
-		// Remove the WindowFlag::kFrameless flag
-		WindowFlags flags = ~windowFlags_;
-		flags &= windowFlags_;
+			// Remove the WindowFlag::kFrameless flag
+//			WindowFlags flags = ~windowFlags_;
+//			flags &= windowFlags_;
+//
+//			applyWindowFlags(flags);
+		}
 
-		applyWindowFlags(flags);
 		hasHiddenParent_ = false;
 
 		if(hasDisabledParent_) {
@@ -658,13 +654,14 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos)
 		}
 	}
 
+	isEmbedded_ = embedder == kInvalidHandle;
 	WINDOW_SYSTEM->sync();
 }
 
 
-void Widget::setParent(Widget* parent, int x, int y)
+void Widget::setParent(Widget* parent, int x, int y, Handle embedder)
 {
-	setParent(parent, Point<int>(x, y));
+	setParent(parent, Point<int>(x, y), embedder);
 }
 
 
