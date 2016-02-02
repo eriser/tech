@@ -20,6 +20,7 @@ namespace Tech {
 class WindowSystemPrivate {
 public:
 	WindowSystemPrivate();
+
 	~WindowSystemPrivate();
 
 	void sync();
@@ -27,7 +28,6 @@ public:
 	Widget::Handle createWindow(Widget* widget, Widget::Handle owner);
 	void destroyWindow(Widget::Handle handle);
 	Widget* findWindow(Widget::Handle handle) const;
-
 	cairo_surface_t* windowSurface(Widget::Handle handle) const;
 
 	void setWindowSizeLimits(Widget::Handle handle, const Size<int>& minSize,
@@ -49,7 +49,6 @@ public:
 
 	void startTimer(Timer::Handle handle, Duration timeout, bool periodic);
 	void stopTimer(Timer::Handle handle);
-
 	bool isTimerActive(Timer::Handle handle) const;
 	Duration timerInterval(Timer::Handle handle) const;
 
@@ -64,14 +63,13 @@ private:
 		cairo_surface_t* surface;
 	};
 
-	std::unordered_map<Widget::Handle, WindowData> dataByHandle_;
+	std::unordered_map <Widget::Handle, WindowData> dataByHandle_;
 	std::unordered_map<Timer::Handle, Timer*> timerByHandle_;
 
 	const WindowData* dataByHandle(Widget::Handle handle) const;
-
 	static std::string errorString();
 
-	static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam,
+	static LRESULT CALLBACK	windowProc(HWND	hwnd, UINT message, WPARAM wParam,
 			LPARAM lParam);
 };
 

@@ -88,8 +88,12 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 
 Widget* WindowSystemPrivate::findWindow(Widget::Handle handle) const
 {
-	// FIXME
-	return nullptr;
+	const WindowData* data = dataByHandle(handle);
+	if(!data) {
+		return nullptr;
+	}
+
+	return data->widget;
 }
 
 
@@ -114,13 +118,29 @@ void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
 
 void WindowSystemPrivate::moveWindow(Widget::Handle handle, const Point<int>& pos)
 {
+	const WindowData* data = dataByHandle(handle);
+	if(!data) {
+		return;
+	}
 
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+
+	MoveWindow(hwnd, pos.x(), pos.y(), data->widget->width(), data->widget->height(),
+			FALSE);
 }
 
 
 void WindowSystemPrivate::resizeWindow(Widget::Handle handle, const Size<int>& size)
 {
+	const WindowData* data = dataByHandle(handle);
+	if(!data) {
+		return;
+	}
 
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+
+	MoveWindow(hwnd, data->widget->x(), data->widget->y(), size.width(), size.height(),
+			FALSE);
 }
 
 
@@ -259,8 +279,8 @@ std::string WindowSystemPrivate::errorString()
 }
 
 
-LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd,UINT message, WPARAM wParam,
-		LPARAM lParam)
+LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
+		wParam, LPARAM lParam)
 {
 	switch(message) {
 	case WM_CLOSE:
@@ -268,7 +288,7 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd,UINT message, WPARAM 
 		return 0;
 
 	case WM_TIMER:
-	break;
+		break;
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);
