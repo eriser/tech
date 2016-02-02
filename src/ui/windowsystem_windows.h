@@ -1,8 +1,14 @@
 #ifndef TECH_UI_WINDOWSYSTEM_WINDOWS_H
 #define TECH_UI_WINDOWSYSTEM_WINDOWS_H
 
+#include <unordered_map>
+#include <unordered_set>
+#include <cairo.h>
+#include <cairo-win32.h>
+#include <windows.h>
 #include <tech/string.h>
 #include <tech/timecounter.h>
+#include <tech/version.h>
 #include <tech/ui/events.h>
 #include <tech/ui/timer.h>
 #include <tech/ui/widget.h>
@@ -49,6 +55,24 @@ public:
 
 	void processEvents();
 	void stopEventProcessing();
+
+private:
+	static constexpr const char* kWindowClass = PROJECT_NAME;
+
+	struct WindowData {
+		Widget* widget;
+		cairo_surface_t* surface;
+	};
+
+	std::unordered_map<Widget::Handle, WindowData> dataByHandle_;
+	std::unordered_map<Timer::Handle, Timer*> timerByHandle_;
+
+	const WindowData* dataByHandle(Widget::Handle handle) const;
+
+	static std::string errorString();
+
+	static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam,
+			LPARAM lParam);
 };
 
 
