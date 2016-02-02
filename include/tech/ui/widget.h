@@ -48,7 +48,7 @@ DECLARE_FLAG_OPERATORS(WindowFlag)
 
 class Widget : public Trackable {
 public:
-	using Handle = uint;
+	using Handle = iptr;
 	static const Handle kInvalidHandle = 0;
 
 	Widget(Widget* parent = nullptr, WindowFlags flags = WindowFlag::kNone);
