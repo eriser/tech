@@ -347,6 +347,140 @@ String Formatter::unsignedToString(u64 value, int base, const Formatter::Flags& 
 }
 
 
+String Formatter::floatToString(float value, const Formatter::Flags& flags)
+{
+	// FIXME
+
+
+	return String();
+}
+
+
+String Formatter::doubleToString(double value, const Formatter::Flags& flags)
+{
+	// FIXME
+	return String();
+}
+
+
+String formatValue(float value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	switch(flags.type) {
+	case Formatter::Flags::kPercentage:
+		break;
+
+	case Formatter::Flags::kFixedPoint:
+		break;
+
+	case Formatter::Flags::kScientific:
+		break;
+
+	case Formatter::Flags::kGeneral:
+	default:
+		break;
+	}
+
+	String prefix;
+
+	if(value >= 0) {
+		if(flags.positiveSign != 0)
+			prefix += flags.positiveSign;
+	}
+	else {
+		prefix += '-';
+	}
+
+	String string = Formatter::floatToString(std::abs(value), flags);
+	size_t totalLength = string.length() + prefix.length();
+	int fillCount = flags.minimumWidth - totalLength;
+	if(fillCount <= 0)
+		return prefix + string;
+
+	String result(flags.minimumWidth, flags.fill);
+
+	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignRight) {
+		result.replace(fillCount, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+		size_t count = fillCount / 2;
+		result.replace(count, prefix.length(), prefix);
+		result.replace(count + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+
+	return result;
+}
+
+
+String formatValue(double value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	switch(flags.type) {
+	case Formatter::Flags::kPercentage:
+		break;
+
+	case Formatter::Flags::kFixedPoint:
+		break;
+
+	case Formatter::Flags::kScientific:
+		break;
+
+	case Formatter::Flags::kGeneral:
+	default:
+		break;
+	}
+
+	String prefix;
+
+	if(value >= 0) {
+		if(flags.positiveSign != 0)
+			prefix += flags.positiveSign;
+	}
+	else {
+		prefix += '-';
+	}
+
+	String string = Formatter::doubleToString(std::abs(value), flags);
+	size_t totalLength = string.length() + prefix.length();
+	int fillCount = flags.minimumWidth - totalLength;
+	if(fillCount <= 0)
+		return prefix + string;
+
+	String result(flags.minimumWidth, flags.fill);
+
+	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignRight) {
+		result.replace(fillCount, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+		size_t count = fillCount / 2;
+		result.replace(count, prefix.length(), prefix);
+		result.replace(count + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+
+	return result;
+}
+
+
 String formatValue(const String& value, const String& spec)
 {
 	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);

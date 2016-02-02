@@ -87,6 +87,8 @@ public:
 	static Flags parseDefaultSpec(const String& spec);
 	static String alignString(const String& string, const Flags& flags);
 	static String unsignedToString(u64 value, int base, const Flags& flags);
+	static String floatToString(float value, const Flags& flags);
+	static String doubleToString(double value, const Flags& flags);
 
 private:
 	class Renderer {
@@ -126,6 +128,9 @@ private:
 
 String formatValue(bool value, const String& spec);
 String formatValue(int value, const String& spec);
+String formatValue(float value, const String& spec);
+String formatValue(double value, const String& spec);
+
 
 template<typename T, EnableIf<
 		IsInteger<T>,
