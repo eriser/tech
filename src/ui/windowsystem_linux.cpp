@@ -151,6 +151,7 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	free(reply);
 	free(reply2);
+
 	return handle;
 }
 
