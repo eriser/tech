@@ -73,7 +73,7 @@ void WindowSystemPrivate::sync()
 }
 
 
-Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle owner)
+Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle embedder)
 {
 	WindowFlags flags = widget->windowFlags();
 
@@ -95,7 +95,7 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 			XCB_GRAVITY_NORTH_WEST,
 
 			// XCB_CW_OVERRIDE_REDIRECT value:
-			flags & WindowFlag::kFrameless,
+			flags & WindowFlag::kFrameless || embedder != Widget::kInvalidHandle,
 
 			// XCB_CW_SAVE_UNDER value:
 			0,
@@ -115,8 +115,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 			| XCB_EVENT_MASK_FOCUS_CHANGE
 	};
 
-	Widget::Handle parent = owner;
-	if(owner == Widget::kInvalidHandle)
+	Widget::Handle parent = embedder;
+	if(embedder == Widget::kInvalidHandle)
 		parent = screen_->root;
 
 	Widget::Handle handle = xcb_generate_id(connection_);
@@ -151,7 +151,6 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	free(reply);
 	free(reply2);
-
 	return handle;
 }
 

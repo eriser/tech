@@ -22,7 +22,7 @@ public:
 
 	void sync();
 
-	Widget::Handle createWindow(Widget* widget, Widget::Handle owner);
+	Widget::Handle createWindow(Widget* widget, Widget::Handle embedder);
 	void destroyWindow(Widget::Handle handle);
 	Widget* findWindow(Widget::Handle handle) const;
 
