@@ -59,7 +59,7 @@ public:
 	Widget(int x, int y, int width, int height, Widget* parent = nullptr,
 			WindowFlags flags = WindowFlag::kNone);
 
-	Widget(int x, int y, int width, int height, Widget::Handle owner);
+	Widget(int x, int y, int width, int height, Widget::Handle embedder);
 
 	Widget(const Widget& other) = delete;
 
@@ -106,10 +106,10 @@ public:
 
 	Widget* parent() const;
 
-	void setParent(Widget* parent, const Point<int>& pos = Point<int>(),
-			Handle embedder = kInvalidHandle);
-
-	void setParent(Widget* parent, int x, int y, Handle embedder = kInvalidHandle);
+	void setParent(Widget* parent, const Point<int>& pos = Point<int>());
+	void setParent(Widget* parent, int x, int y);
+	void setParent(Handle embedder, const Point<int>& pos = Point<int>());
+	void setParent(Handle embedder, int x, int y);
 
 	Widget* childAt(const Point<int>& point, bool recursive = true) const;
 
@@ -308,6 +308,8 @@ private:
 	Size<int> maximumSize_;
 
 	Box<Layout> layout_;
+
+	void setParent(Widget* newParent, const Point<int>& pos, Handle embedder);
 
 	void applyWindowFlags(WindowFlags flags);
 

@@ -56,7 +56,7 @@ Widget::Widget(int x, int y, int width, int height, Widget* parent, WindowFlags 
 }
 
 
-Widget::Widget(int x, int y, int width, int height, Widget::Handle owner) :
+Widget::Widget(int x, int y, int width, int height, Widget::Handle embedder) :
 	handle_(0),
 	surface_(nullptr),
 	windowFlags_(WindowFlag::kFrameless),
@@ -80,7 +80,7 @@ Widget::Widget(int x, int y, int width, int height, Widget::Handle owner) :
 	focus_(nullptr),
 	maximumSize_(Limits<int>::max(), Limits<int>::max())
 {
-	setParent(nullptr, x, y, owner);
+	setParent(embedder, x, y);
 }
 
 
@@ -559,9 +559,33 @@ Widget* Widget::parent() const
 }
 
 
+void Widget::setParent(Widget* parent, const Point<int>& pos)
+{
+	setParent(parent, pos, kInvalidHandle);
+}
+
+
+void Widget::setParent(Widget* parent, int x, int y)
+{
+	setParent(parent, Point<int>(x, y), kInvalidHandle);
+}
+
+
+void Widget::setParent(Handle embedder, const Point<int>& pos)
+{
+	setParent(nullptr, pos, embedder);
+}
+
+
+void Widget::setParent(Handle embedder, int x, int y)
+{
+	setParent(nullptr, Point<int>(x, y), embedder);
+}
+
+
 void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder)
 {
-	if(surface_ && newParent == parent_)
+	if(surface_ && newParent == parent_ && embedder == Widget::kInvalidHandle)
 		return;
 
 	// Widget should become invisible when its parent changed
@@ -624,7 +648,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 		if(layout_)
 			layout_->insert(this);
 	}
-	else { // Create window for widget without the parent
+	else { // Create window for widget without the parent widget
 		next_ = nullptr;
 		handle_ = WINDOW_SYSTEM->createWindow(this, embedder);
 		if(handle_ == kInvalidHandle) {
@@ -639,10 +663,10 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 			WINDOW_SYSTEM->resizeWindow(handle_, size_);
 
 			// Remove the WindowFlag::kFrameless flag
-//			WindowFlags flags = ~windowFlags_;
-//			flags &= windowFlags_;
-//
-//			applyWindowFlags(flags);
+			WindowFlags flags = ~windowFlags_;
+			flags &= windowFlags_;
+
+			applyWindowFlags(flags);
 		}
 
 		hasHiddenParent_ = false;
@@ -656,12 +680,6 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 
 	isEmbedded_ = embedder == kInvalidHandle;
 	WINDOW_SYSTEM->sync();
-}
-
-
-void Widget::setParent(Widget* parent, int x, int y, Handle embedder)
-{
-	setParent(parent, Point<int>(x, y), embedder);
 }
 
 
@@ -786,6 +804,9 @@ void Widget::repaint()
 
 void Widget::repaint(const Rect<int>& rect)
 {
+	if(!isVisible())
+		return;
+
 	Widget* widget = this;
 	Rect<int> r = rect;
 
@@ -806,9 +827,6 @@ void Widget::repaint(const Rect<int>& rect)
 
 void Widget::repaint(Painter* painter, const Rect<int>& rect, const Point<int>& pos)
 {
-	if(!isVisible())
-		return;
-
 	painter->beginOffscreenPaint();
 	painter->translate(pos.x(), pos.y());
 	painter->setClipRect(this->rect());
