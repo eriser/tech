@@ -165,6 +165,7 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 
 	cairo_surface_finish(data->surface);
 	xcb_destroy_window(connection_, handle);
+	dataByHandle_.erase(handle);
 }
 
 
