@@ -26,7 +26,6 @@ Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 	handle_(0),
 	surface_(nullptr),
 	windowFlags_(flags),
-	isEmbedded_(false),
 	isEnabled_(true),
 	hasDisabledParent_(false),
 	isVisible_(false),
@@ -35,6 +34,7 @@ Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 	hasFocus_(false),
 	hasGrab_(false),
 	isProcessingEvents_(false),
+	embedder_(kInvalidHandle),
 	pos_(pos),
 	size_(size),
 	parent_(nullptr),
@@ -60,7 +60,6 @@ Widget::Widget(int x, int y, int width, int height, Widget::Handle embedder) :
 	handle_(0),
 	surface_(nullptr),
 	windowFlags_(WindowFlag::kFrameless),
-	isEmbedded_(true),
 	isEnabled_(true),
 	hasDisabledParent_(false),
 	isVisible_(false),
@@ -188,7 +187,7 @@ void Widget::applyWindowFlags(WindowFlags flags)
 
 bool Widget::isEmbedded() const
 {
-	return isEmbedded_;
+	return embedder_ != kInvalidHandle;
 }
 
 
@@ -585,7 +584,7 @@ void Widget::setParent(Handle embedder, int x, int y)
 
 void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder)
 {
-	if(surface_ && newParent == parent_ && embedder == Widget::kInvalidHandle)
+	if(surface_ && newParent == parent_ && embedder == embedder_)
 		return;
 
 	// Widget should become invisible when its parent changed
@@ -678,7 +677,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 		}
 	}
 
-	isEmbedded_ = embedder == kInvalidHandle;
+	embedder_ = embedder;
 	WINDOW_SYSTEM->sync();
 }
 

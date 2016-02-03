@@ -231,9 +231,6 @@ private:
 	WindowFlags windowFlags_;
 
 	struct {
-		// Indicates that widget is embedded into foreign window
-		bool isEmbedded_         : 1;
-
 		// Indicates that widget itself is enabled, though it can still be disabled
 		// because of a disabled parent
 		bool isEnabled_          : 1;
@@ -261,6 +258,8 @@ private:
 		// Indicates that processEvents() function of this widget is running
 		bool isProcessingEvents_ : 1;
 	};
+
+	Handle embedder_;
 
 	// Position of widget relative to parent's origin
 	Point<int> pos_;
