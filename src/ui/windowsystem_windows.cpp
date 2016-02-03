@@ -54,10 +54,10 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 		return Widget::kInvalidHandle;
 	}
 
-	HDC dc = GetDC(hwnd);
-	cairo_surface_t* surface = cairo_win32_surface_create(dc);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(widget));
 
-	ReleaseDC(hwnd, dc);
+    cairo_surface_t* surface = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
+            widget->width(), widget->height());
 
 	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
 		LOG("Unable to create cairo Win32 surface");
@@ -83,6 +83,7 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 	cairo_surface_finish(data->surface);
 	DestroyWindow(reinterpret_cast<HWND>(handle));
 	UnregisterClass(kWindowClass, GetModuleHandle(nullptr));
+    dataByHandle_.erase(handle);
 }
 
 
@@ -112,35 +113,33 @@ cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
 void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
 		const Size<int>& minSize, const Size<int>& maxSize)
 {
-
+    UNUSED(handle);
+    UNUSED(minSize);
+    UNUSED(maxSize);
 }
 
 
 void WindowSystemPrivate::moveWindow(Widget::Handle handle, const Point<int>& pos)
 {
-	const WindowData* data = dataByHandle(handle);
-	if(!data) {
-		return;
-	}
+    HWND hwnd = reinterpret_cast<HWND>(handle);
+    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Widget* widget = reinterpret_cast<Widget*>(data);
+    if(!widget)
+        return;
 
-	HWND hwnd = reinterpret_cast<HWND>(handle);
-
-	MoveWindow(hwnd, pos.x(), pos.y(), data->widget->width(), data->widget->height(),
-			FALSE);
+    MoveWindow(hwnd, pos.x(), pos.y(), widget->width(), widget->height(), FALSE);
 }
 
 
 void WindowSystemPrivate::resizeWindow(Widget::Handle handle, const Size<int>& size)
 {
-	const WindowData* data = dataByHandle(handle);
-	if(!data) {
-		return;
-	}
+    HWND hwnd = reinterpret_cast<HWND>(handle);
+    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Widget* widget = reinterpret_cast<Widget*>(data);
+    if(!widget)
+        return;
 
-	HWND hwnd = reinterpret_cast<HWND>(handle);
-
-	MoveWindow(hwnd, data->widget->x(), data->widget->y(), size.width(), size.height(),
-			FALSE);
+    MoveWindow(hwnd, widget->x(), widget->y(), size.width(), size.height(), FALSE);
 }
 
 
@@ -149,7 +148,7 @@ void WindowSystemPrivate::setWindowVisible(Widget::Handle handle, bool visible)
 	HWND hwnd = reinterpret_cast<HWND>(handle);
 	if(visible) {
 		ShowWindow(hwnd, SW_SHOWNORMAL);
-		UpdateWindow(hwnd);
+        UpdateWindow(hwnd);
 	}
 	else {
 		ShowWindow(hwnd, SW_HIDE);
@@ -171,7 +170,8 @@ void WindowSystemPrivate::setWindowTaskbarButton(Widget::Handle handle, bool ena
 
 void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& title)
 {
-
+    HWND hwnd = reinterpret_cast<HWND>(handle);
+    SetWindowText(hwnd, title.toUtf8());
 }
 
 
@@ -282,13 +282,41 @@ std::string WindowSystemPrivate::errorString()
 LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		wParam, LPARAM lParam)
 {
+    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Widget* widget = reinterpret_cast<Widget*>(data);
+    if(!widget) {
+        return DefWindowProc(hwnd, message, wParam, lParam);
+    }
+
 	switch(message) {
 	case WM_CLOSE:
 		ShowWindow(hwnd, SW_HIDE);
 		return 0;
 
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+
+        // FIXME
+        cairo_surface_t* surface = cairo_win32_surface_create(hdc);
+        cairo_t* cr = cairo_create(surface);
+        cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+        cairo_paint(cr);
+        cairo_destroy(cr);
+
+        EndPaint(hwnd, &ps);
+        return 0; }
+
 	case WM_TIMER:
 		break;
+
+    case WM_GETMINMAXINFO: {
+        MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+        mmi->ptMinTrackSize.x = widget->minimumWidth();
+        mmi->ptMinTrackSize.y = widget->minimumHeight();
+        mmi->ptMaxTrackSize.x = widget->maximumWidth();
+        mmi->ptMaxTrackSize.y = widget->maximumHeight();
+        return 0; }
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);
