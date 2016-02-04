@@ -400,57 +400,55 @@ Duration WindowSystemPrivate::timerInterval(Timer::Handle handle) const
 
 void WindowSystemPrivate::processEvents()
 {
-	epoll_event events[16];
+	epoll_event event;
 	bool running = true;
 
 	while(running) {
-		int count = epoll_wait(epollFd_, events, 16, -1);
+		int count = epoll_wait(epollFd_, &event, 1, -1);
 		if(count < 0 && errno != EINTR) {
 			LOG("epoll_wait call failed: {0}", ::strerror(errno));
 			break;
 		}
 
-		for(int i = 0; i < count; ++i) {
-			int fd = events[i].data.fd;
-			if(fd == xcbFd_) {
-				processWindowEvents();
+		int fd = event.data.fd;
+		if(fd == xcbFd_) {
+			processWindowEvents();
+		}
+		else if(fd == pipeFds_[0]) {
+			Command command;
+			read(fd, &command, sizeof(command));
+
+			if(command == Command::kStopProcessing) {
+				while(!deletionQueue_.empty()) {
+					auto it = deletionQueue_.begin();
+					delete (*it);
+					deletionQueue_.erase(it);
+				}
+
+				running = false;
 			}
-			else if(fd == pipeFds_[0]) {
-				Command command;
-				read(fd, &command, sizeof(command));
-
-				if(command == Command::kStopProcessing) {
-					while(!deletionQueue_.empty()) {
-						auto it = deletionQueue_.begin();
-						delete (*it);
-						deletionQueue_.erase(it);
-					}
-
-					running = false;
-				}
-				else if(command == Command::kRepaintWidgets) {
-					while(!repaintQueue_.empty()) {
-						auto it = repaintQueue_.begin();
-						(*it)->repaint();
-						repaintQueue_.erase(it);
-					}
-				}
-				else if(command == Command::kDeleteWidgets) {
-					while(!deletionQueue_.empty()) {
-						auto it = deletionQueue_.begin();
-						delete (*it);
-						deletionQueue_.erase(it);
-					}
+			else if(command == Command::kRepaintWidgets) {
+				while(!repaintQueue_.empty()) {
+					auto it = repaintQueue_.begin();
+					(*it)->repaint();
+					repaintQueue_.erase(it);
 				}
 			}
-			else {
-				u64 value;
-				read(fd, &value, sizeof(value));
-
-				const Timer* timer = timerByHandle(fd);
-				if(timer)
-					timer->timeout({});
+			else if(command == Command::kDeleteWidgets) {
+				while(!deletionQueue_.empty()) {
+					auto it = deletionQueue_.begin();
+					delete (*it);
+					deletionQueue_.erase(it);
+				}
 			}
+		}
+		else {
+			u64 value;
+			read(fd, &value, sizeof(value));
+
+			const Timer* timer = timerByHandle(fd);
+			if(timer)
+				timer->timeout({});
 		}
 	}
 }
