@@ -1,6 +1,7 @@
 #include <tech/ui/widget.h>
 
 #include <cairo.h>
+#include <unistd.h>
 #include <tech/logger.h>
 #include <tech/ui/layout.h>
 #include <tech/ui/painter.h>
@@ -648,6 +649,9 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 			layout_->insert(this);
 	}
 	else { // Create window for widget without the parent widget
+		// FIXME
+		usleep(3000);
+
 		next_ = nullptr;
 		handle_ = WINDOW_SYSTEM->createWindow(this, embedder);
 		if(handle_ == kInvalidHandle) {
