@@ -6,6 +6,7 @@
 #include <sys/timerfd.h>
 #include <tech/logger.h>
 #include <xcb/xcb_icccm.h>
+#include <xcb/xcb.h>
 
 
 namespace Tech {
@@ -86,7 +87,7 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	u32 values[] = {
 			// XCB_CW_BACK_PIXMAP value:
-			XCB_NONE,
+			XCB_BACK_PIXMAP_NONE,
 
 			// XCB_CW_BIT_GRAVITY value:
 			XCB_GRAVITY_NORTH_WEST,
