@@ -122,10 +122,16 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	Widget::Handle handle = xcb_generate_id(connection_);
 
-	xcb_create_window(connection_, XCB_COPY_FROM_PARENT, handle, parent,
+	auto c = xcb_create_window_checked(connection_, XCB_COPY_FROM_PARENT, handle, parent,
 			static_cast<i16>(widget->x()), static_cast<i16>(widget->y()),
 			static_cast<u16>(widget->width()), static_cast<u16>(widget->height()), 0,
 			XCB_WINDOW_CLASS_INPUT_OUTPUT, screen_->root_visual, mask, values);
+
+	auto error = xcb_request_check(connection_, c);
+	if(error) {
+		LOG("Unable to create XCB window: {0}", (int) error->error_code);
+		return Widget::kInvalidHandle;
+	}
 
 	auto cookie = xcb_intern_atom(connection_, 1, 12, "WM_PROTOCOLS");
 	auto* reply = xcb_intern_atom_reply(connection_, cookie, 0);
