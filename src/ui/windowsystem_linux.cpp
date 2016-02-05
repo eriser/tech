@@ -116,6 +116,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 			| XCB_EVENT_MASK_FOCUS_CHANGE
 	};
 
+	usleep(10000);
+
 	Widget::Handle parent = embedder;
 	if(embedder == Widget::kInvalidHandle)
 		parent = screen_->root;
@@ -126,6 +128,9 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 			static_cast<i16>(widget->x()), static_cast<i16>(widget->y()),
 			static_cast<u16>(widget->width()), static_cast<u16>(widget->height()), 0,
 			XCB_WINDOW_CLASS_INPUT_OUTPUT, screen_->root_visual, mask, values);
+
+	LOG("embedder={0:#X} [{1}]", embedder, isHandleValid(embedder));
+	LOG("handle={0:#X}", handle);
 
 	auto error = xcb_request_check(connection_, c);
 	if(error) {
@@ -395,6 +400,22 @@ Duration WindowSystemPrivate::timerInterval(Timer::Handle handle) const
 		return Duration();
 
 	return Duration(data.it_interval.tv_sec * 1000 + data.it_interval.tv_nsec / 1000000);
+}
+
+
+bool WindowSystemPrivate::isHandleValid(Widget::Handle handle) const
+{
+	xcb_generic_error_t* error;
+	auto cookie = xcb_get_window_attributes(connection_, handle);
+	auto reply = xcb_get_window_attributes_reply(connection_, cookie, &error);
+
+	if(!reply) {
+		LOG("invalid handle: {0}", (int) error->error_code);
+		return false;
+	}
+
+	free(reply);
+	return true;
 }
 
 

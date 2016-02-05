@@ -82,6 +82,8 @@ private:
 
 	void processWindowEvents();
 
+	bool isHandleValid(Widget::Handle handle) const;
+
 	const WindowData* dataByHandle(Widget::Handle handle) const;
 	Timer* timerByHandle(Timer::Handle handle);
 	static MouseButton translateMouseButton(u8 button);
