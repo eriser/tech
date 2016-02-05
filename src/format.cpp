@@ -250,7 +250,7 @@ String formatValue(bool value, const String& spec)
 }
 
 
-String formatValue(int value, const String& spec)
+String formatValue(i32 value, const String& spec)
 {
 	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
 
@@ -295,6 +295,221 @@ String formatValue(int value, const String& spec)
 		prefix += basePrefix;
 
 	String string = Formatter::unsignedToString(std::abs(value), base, flags);
+
+	size_t totalLength = string.length() + prefix.length();
+	int fillCount = flags.minimumWidth - totalLength;
+	if(fillCount <= 0)
+		return prefix + string;
+
+	String result(flags.minimumWidth, flags.fill);
+
+	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignRight) {
+		result.replace(fillCount, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+		size_t count = fillCount / 2;
+		result.replace(count, prefix.length(), prefix);
+		result.replace(count + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+
+	return result;
+}
+
+
+String formatValue(u32 value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	int base;
+	ch16 basePrefix[3];
+	basePrefix[0] = '0';
+	basePrefix[2] = '\0';
+
+	switch(flags.type) {
+	case Formatter::Flags::kBinary:
+		base = 2;
+		basePrefix[1] = 'b';
+		break;
+
+	case Formatter::Flags::kOctal:
+		base = 8;
+		basePrefix[1] = 'o';
+		break;
+
+	case Formatter::Flags::kHexadecimal:
+		base = 16;
+		basePrefix[1] = 'x';
+		break;
+
+	default:
+		base = 10;
+		basePrefix[1] = 'd';
+		break;
+	}
+
+	String prefix;
+
+	if(flags.positiveSign != 0)
+		prefix += flags.positiveSign;
+
+	if(flags.showBasePrefix)
+		prefix += basePrefix;
+
+	String string = Formatter::unsignedToString(value, base, flags);
+
+	size_t totalLength = string.length() + prefix.length();
+	int fillCount = flags.minimumWidth - totalLength;
+	if(fillCount <= 0)
+		return prefix + string;
+
+	String result(flags.minimumWidth, flags.fill);
+
+	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignRight) {
+		result.replace(fillCount, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+		size_t count = fillCount / 2;
+		result.replace(count, prefix.length(), prefix);
+		result.replace(count + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+
+	return result;
+}
+
+
+String formatValue(i64 value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	int base;
+	ch16 basePrefix[3];
+	basePrefix[0] = '0';
+	basePrefix[2] = '\0';
+
+	switch(flags.type) {
+	case Formatter::Flags::kBinary:
+		base = 2;
+		basePrefix[1] = 'b';
+		break;
+
+	case Formatter::Flags::kOctal:
+		base = 8;
+		basePrefix[1] = 'o';
+		break;
+
+	case Formatter::Flags::kHexadecimal:
+		base = 16;
+		basePrefix[1] = 'x';
+		break;
+
+	default:
+		base = 10;
+		basePrefix[1] = 'd';
+		break;
+	}
+
+	String prefix;
+
+	if(value >= 0) {
+		if(flags.positiveSign != 0)
+			prefix += flags.positiveSign;
+	}
+	else {
+		prefix += '-';
+	}
+
+	if(flags.showBasePrefix)
+		prefix += basePrefix;
+
+	String string = Formatter::unsignedToString(std::abs(value), base, flags);
+
+	size_t totalLength = string.length() + prefix.length();
+	int fillCount = flags.minimumWidth - totalLength;
+	if(fillCount <= 0)
+		return prefix + string;
+
+	String result(flags.minimumWidth, flags.fill);
+
+	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignRight) {
+		result.replace(fillCount, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignCenter) {
+		size_t count = fillCount / 2;
+		result.replace(count, prefix.length(), prefix);
+		result.replace(count + prefix.length(), string.length(), string);
+	}
+	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
+		result.replace(0, prefix.length(), prefix);
+		result.replace(fillCount + prefix.length(), string.length(), string);
+	}
+
+	return result;
+}
+
+
+String formatValue(u64 value, const String& spec)
+{
+	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
+
+	int base;
+	ch16 basePrefix[3];
+	basePrefix[0] = '0';
+	basePrefix[2] = '\0';
+
+	switch(flags.type) {
+	case Formatter::Flags::kBinary:
+		base = 2;
+		basePrefix[1] = 'b';
+		break;
+
+	case Formatter::Flags::kOctal:
+		base = 8;
+		basePrefix[1] = 'o';
+		break;
+
+	case Formatter::Flags::kHexadecimal:
+		base = 16;
+		basePrefix[1] = 'x';
+		break;
+
+	default:
+		base = 10;
+		basePrefix[1] = 'd';
+		break;
+	}
+
+	String prefix;
+
+	if(flags.positiveSign != 0)
+		prefix += flags.positiveSign;
+
+	if(flags.showBasePrefix)
+		prefix += basePrefix;
+
+	String string = Formatter::unsignedToString(value, base, flags);
 
 	size_t totalLength = string.length() + prefix.length();
 	int fillCount = flags.minimumWidth - totalLength;

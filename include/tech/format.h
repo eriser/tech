@@ -127,7 +127,10 @@ private:
 
 
 String formatValue(bool value, const String& spec = String());
-String formatValue(int value, const String& spec = String());
+String formatValue(i32 value, const String& spec = String());
+String formatValue(u32 value, const String& spec = String());
+String formatValue(i64 value, const String& spec = String());
+String formatValue(u64 value, const String& spec = String());
 String formatValue(float value, const String& spec = String());
 String formatValue(double value, const String& spec = String());
 
