@@ -46,7 +46,7 @@ using WindowFlags = Flags<WindowFlag>;
 DECLARE_FLAG_OPERATORS(WindowFlag)
 
 
-class Widget : public Trackable {
+class Widget : public virtual Trackable {
 public:
 	using Handle = iptr;
 	static const Handle kInvalidHandle = -1;

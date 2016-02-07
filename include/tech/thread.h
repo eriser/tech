@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <tech/duration.h>
+#include <tech/signal.h>
 #include <tech/types.h>
 
 
@@ -19,7 +20,7 @@ enum class ThreadState {
 };
 
 
-class Thread {
+class Thread : public virtual Trackable {
 public:
 	Thread();
 	virtual ~Thread();
