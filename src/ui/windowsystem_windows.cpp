@@ -45,8 +45,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	}
 
 	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, kWindowClass,
-			widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
-			widget->width(), widget->height(), 0, 0, GetModuleHandle(nullptr), 0);
+							   widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
+							   widget->width(), widget->height(), 0, 0, GetModuleHandle(nullptr), 0);
 
 	if(!hwnd) {
 		LOG("Unable to create window: %s", errorString().c_str());
@@ -54,10 +54,10 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 		return Widget::kInvalidHandle;
 	}
 
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(widget));
+	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-    cairo_surface_t* surface = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
-            widget->width(), widget->height());
+	cairo_surface_t* surface = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
+																   widget->width(), widget->height());
 
 	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
 		LOG("Unable to create cairo Win32 surface");
@@ -83,7 +83,7 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 	cairo_surface_finish(data->surface);
 	DestroyWindow(reinterpret_cast<HWND>(handle));
 	UnregisterClass(kWindowClass, GetModuleHandle(nullptr));
-    dataByHandle_.erase(handle);
+	dataByHandle_.erase(handle);
 }
 
 
@@ -111,35 +111,35 @@ cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
 
 
 void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
-		const Size<int>& minSize, const Size<int>& maxSize)
+											  const Size<int>& minSize, const Size<int>& maxSize)
 {
-    UNUSED(handle);
-    UNUSED(minSize);
-    UNUSED(maxSize);
+	UNUSED(handle);
+	UNUSED(minSize);
+	UNUSED(maxSize);
 }
 
 
 void WindowSystemPrivate::moveWindow(Widget::Handle handle, const Point<int>& pos)
 {
-    HWND hwnd = reinterpret_cast<HWND>(handle);
-    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    Widget* widget = reinterpret_cast<Widget*>(data);
-    if(!widget)
-        return;
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+	const WindowData* data = dataByHandle(handle);
+	if(!data)
+		return;
 
-    MoveWindow(hwnd, pos.x(), pos.y(), widget->width(), widget->height(), FALSE);
+	Widget* widget = data->widget;
+	MoveWindow(hwnd, pos.x(), pos.y(), widget->width(), widget->height(), FALSE);
 }
 
 
 void WindowSystemPrivate::resizeWindow(Widget::Handle handle, const Size<int>& size)
 {
-    HWND hwnd = reinterpret_cast<HWND>(handle);
-    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    Widget* widget = reinterpret_cast<Widget*>(data);
-    if(!widget)
-        return;
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+	const WindowData* data = dataByHandle(handle);
+	if(!data)
+		return;
 
-    MoveWindow(hwnd, widget->x(), widget->y(), size.width(), size.height(), FALSE);
+	Widget* widget = data->widget;
+	MoveWindow(hwnd, widget->x(), widget->y(), size.width(), size.height(), FALSE);
 }
 
 
@@ -148,7 +148,7 @@ void WindowSystemPrivate::setWindowVisible(Widget::Handle handle, bool visible)
 	HWND hwnd = reinterpret_cast<HWND>(handle);
 	if(visible) {
 		ShowWindow(hwnd, SW_SHOWNORMAL);
-        UpdateWindow(hwnd);
+		UpdateWindow(hwnd);
 	}
 	else {
 		ShowWindow(hwnd, SW_HIDE);
@@ -170,8 +170,8 @@ void WindowSystemPrivate::setWindowTaskbarButton(Widget::Handle handle, bool ena
 
 void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& title)
 {
-    HWND hwnd = reinterpret_cast<HWND>(handle);
-    SetWindowText(hwnd, title.toUtf8());
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+	SetWindowText(hwnd, title.toUtf8());
 }
 
 
@@ -201,7 +201,7 @@ void WindowSystemPrivate::destroyTimer(Timer::Handle handle)
 
 
 void WindowSystemPrivate::startTimer(Timer::Handle handle, Duration timeout,
-		bool periodic)
+									 bool periodic)
 {
 
 }
@@ -264,8 +264,8 @@ std::string WindowSystemPrivate::errorString()
 	DWORD length;
 	length = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 						   FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, error,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&buffer),
-			0, nullptr);
+						   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&buffer),
+						   0, nullptr);
 
 	if(length) {
 		LPCSTR message = static_cast<LPCSTR>(buffer);
@@ -280,43 +280,55 @@ std::string WindowSystemPrivate::errorString()
 
 
 LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
-		wParam, LPARAM lParam)
+												 wParam, LPARAM lParam)
 {
-    LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    Widget* widget = reinterpret_cast<Widget*>(data);
-    if(!widget) {
-        return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+	LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	WindowSystemPrivate* self = reinterpret_cast<WindowSystemPrivate*>(ptr);
+	if(!self)
+		return DefWindowProc(hwnd, message, wParam, lParam);
+
+	Widget::Handle handle = reinterpret_cast<Widget::Handle>(hwnd);
+	const WindowData* data = self->dataByHandle(handle);
+	if(!data || !data->widget)
+		return DefWindowProc(hwnd, message, wParam, lParam);
+
+	Widget* widget = data->widget;
 
 	switch(message) {
 	case WM_CLOSE:
 		ShowWindow(hwnd, SW_HIDE);
 		return 0;
 
-    case WM_PAINT: {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
+	case WM_PAINT: {
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
 
-        // FIXME
-        cairo_surface_t* surface = cairo_win32_surface_create(hdc);
-        cairo_t* cr = cairo_create(surface);
-        cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
-        cairo_paint(cr);
-        cairo_destroy(cr);
+		// FIXME
+//		cairo_surface_t* surface = cairo_win32_surface_create(hdc);
+//		cairo_t* cr = cairo_create(surface);
+//		cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+//		cairo_paint(cr);
 
-        EndPaint(hwnd, &ps);
-        return 0; }
+		cairo_surface_t* surface = cairo_win32_surface_create(hdc);
+		cairo_t* cr = cairo_create(surface);
+		cairo_set_source_surface(cr, data->surface, 0, 0);
+		cairo_paint(cr);
+
+		cairo_destroy(cr);
+
+		EndPaint(hwnd, &ps);
+		return 0; }
 
 	case WM_TIMER:
 		break;
 
-    case WM_GETMINMAXINFO: {
-        MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
-        mmi->ptMinTrackSize.x = widget->minimumWidth();
-        mmi->ptMinTrackSize.y = widget->minimumHeight();
-        mmi->ptMaxTrackSize.x = widget->maximumWidth();
-        mmi->ptMaxTrackSize.y = widget->maximumHeight();
-        return 0; }
+	case WM_GETMINMAXINFO: {
+		MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+		mmi->ptMinTrackSize.x = widget->minimumWidth();
+		mmi->ptMinTrackSize.y = widget->minimumHeight();
+		mmi->ptMaxTrackSize.x = widget->maximumWidth();
+		mmi->ptMaxTrackSize.y = widget->maximumHeight();
+		return 0; }
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);
