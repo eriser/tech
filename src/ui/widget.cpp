@@ -816,10 +816,14 @@ void Widget::repaint(const Rect<int>& rect)
 	}
 
 	Painter painter(surface_, {});
+	painter.beginOffscreenPaint();
+
 	painter.setSource(Color::kWhite);
 	painter.paint();
 
 	widget->repaint(&painter, r, Point<int>());
+
+	painter.applyOffscreenPaint();
 	WINDOW_SYSTEM->sync();
 }
 
