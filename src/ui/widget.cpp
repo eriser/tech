@@ -830,7 +830,7 @@ void Widget::repaint(const Rect<int>& rect)
 
 void Widget::repaint(Painter* painter, const Rect<int>& rect, const Point<int>& pos)
 {
-	painter->beginOffscreenPaint();
+	painter->save();
 	painter->translate(pos.x(), pos.y());
 	painter->setClipRect(this->rect());
 
@@ -840,7 +840,7 @@ void Widget::repaint(Painter* painter, const Rect<int>& rect, const Point<int>& 
 
 	dispatchEvent(&event);
 
-	painter->applyOffscreenPaint();
+	painter->restore();
 	painter->resetClip();
 
 	// Repaint child widgets from bottom to top
