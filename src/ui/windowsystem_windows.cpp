@@ -45,9 +45,12 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 		return Widget::kInvalidHandle;
 	}
 
+	RECT wr = { 0, 0, widget->width(), widget->height() };
+	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
+
 	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, kWindowClass,
 			widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
-			widget->width(), widget->height(), 0, 0, GetModuleHandle(nullptr), 0);
+			wr.right - wr.left, wr.bottom - wr.top, 0, 0, GetModuleHandle(nullptr), nullptr);
 
 	if(!hwnd) {
 		LOG("Unable to create window: %s", errorString().c_str());
@@ -139,8 +142,11 @@ void WindowSystemPrivate::resizeWindow(Widget::Handle handle, const Size<int>& s
 	if(!data)
 		return;
 
+	RECT wr = { 0, 0, size.width(),size.height() };
+	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
+
 	Widget* widget = data->widget;
-	MoveWindow(hwnd, widget->x(), widget->y(), size.width(), size.height(), FALSE);
+	MoveWindow(hwnd, widget->x(), widget->y(), wr.right - wr.left, wr.bottom - wr.top, FALSE);
 }
 
 
