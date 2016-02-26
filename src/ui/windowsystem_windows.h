@@ -63,6 +63,7 @@ private:
 	struct WindowData {
 		Widget* widget;
 		cairo_surface_t* surface;
+		mutable bool hasMouse;
 	};
 
 	std::unordered_map <Widget::Handle, WindowData> dataByHandle_;

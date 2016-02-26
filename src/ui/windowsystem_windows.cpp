@@ -1,5 +1,6 @@
 #include "windowsystem_windows.h"
 
+#include <windowsx.h>
 #include <tech/logger.h>
 
 
@@ -45,8 +46,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	}
 
 	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, kWindowClass,
-							   widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
-							   widget->width(), widget->height(), 0, 0, GetModuleHandle(nullptr), 0);
+			widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
+			widget->width(), widget->height(), 0, 0, GetModuleHandle(nullptr), 0);
 
 	if(!hwnd) {
 		LOG("Unable to create window: %s", errorString().c_str());
@@ -56,8 +57,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-	cairo_surface_t* surface = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
-																   widget->width(), widget->height());
+	cairo_surface_t* surface = cairo_win32_surface_create_with_dib(
+			CAIRO_FORMAT_RGB24, widget->width(), widget->height());
 
 	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
 		LOG("Unable to create cairo Win32 surface");
@@ -67,7 +68,7 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	}
 
 	Widget::Handle handle = reinterpret_cast<Widget::Handle>(hwnd);
-	dataByHandle_.emplace(makePair(handle, WindowData{widget, surface}));
+	dataByHandle_.emplace(makePair(handle, WindowData{widget, surface, false}));
 
 	return reinterpret_cast<iptr>(hwnd);
 }
@@ -111,7 +112,7 @@ cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
 
 
 void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
-											  const Size<int>& minSize, const Size<int>& maxSize)
+		const Size<int>& minSize, const Size<int>& maxSize)
 {
 	UNUSED(handle);
 	UNUSED(minSize);
@@ -177,13 +178,21 @@ void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& ti
 
 void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& rect)
 {
+	RECT r;
+	r.top    = rect.top();
+	r.left   = rect.left();
+	r.right  = rect.right();
+	r.bottom = rect.bottom();
 
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+	RedrawWindow(hwnd, &r, nullptr, RDW_INTERNALPAINT);
 }
 
 
 void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 {
-
+	HWND hwnd = reinterpret_cast<HWND>(widget->handle());
+	UpdateWindow(hwnd);
 }
 
 
@@ -269,9 +278,9 @@ std::string WindowSystemPrivate::errorString()
 	LPVOID buffer;
 	DWORD length;
 	length = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-						   FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, error,
-						   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&buffer),
-						   0, nullptr);
+			FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, error,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&buffer),
+			0, nullptr);
 
 	if(length) {
 		LPCSTR message = static_cast<LPCSTR>(buffer);
@@ -305,23 +314,93 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		ShowWindow(hwnd, SW_HIDE);
 		return 0;
 
+	case WM_MOUSEMOVE: {
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
+
+		Point<int> pos(x, y);
+//		Point<int> globalPos(ev->root_x, ev->root_y);
+
+		if(!data->hasMouse) {
+			LOG("mouse enter");
+
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = hwnd;
+			TrackMouseEvent(&tme);
+
+			data->hasMouse = true;
+
+			MouseEvent event(Event::kMouseEnter);
+	//		event.setTimestamp(ev->time, {});
+	//		event.setModifiers(translateKeyModifier(ev->state), {});
+			event.setPos(pos, {});
+			event.setWindowPos(pos, {});
+	//		event.setGlobalPos(globalPos, {});
+	//		event.setButtons(mouseButtons_, {});
+			data->widget->processEvent(&event, {});
+
+		}
+
+		MouseEvent event(Event::kMouseMove);
+//		event.setTimestamp(ev->time, {});
+//		event.setModifiers(translateKeyModifier(ev->state), {});
+		event.setPos(pos, {});
+		event.setWindowPos(pos, {});
+//		event.setGlobalPos(globalPos, {});
+//		event.setButtons(mouseButtons_, {});
+		data->widget->processEvent(&event, {});
+
+		return 0; }
+
+	case WM_MOUSELEAVE: {
+		LOG("mouse leave");
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
+
+		Point<int> pos(x, y);
+//		Point<int> globalPos(ev->root_x, ev->root_y);
+
+		MouseEvent e(Event::kMouseLeave);
+//		e.setTimestamp(ev->time, {});
+//		e.setModifiers(translateKeyModifier(ev->state), {});
+		e.setPos(pos, {});
+		e.setWindowPos(pos, {});
+//		e.setGlobalPos(globalPos, {});
+//		e.setButtons(mouseButtons_, {});
+		data->widget->processEvent(&e, {});
+		data->hasMouse = false;
+
+		return 0; }
+
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hwnd, &ps);
-
-		// FIXME
-//		cairo_surface_t* surface = cairo_win32_surface_create(hdc);
-//		cairo_t* cr = cairo_create(surface);
-//		cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
-//		cairo_paint(cr);
-
 		cairo_surface_t* surface = cairo_win32_surface_create(hdc);
 		cairo_t* cr = cairo_create(surface);
+
+		RECT r;
+		GetUpdateRect(hwnd, &r, FALSE);
+
+		Rect<int> rect;
+		rect.setTopLeft(r.left, r.top);
+		rect.setBottomRight(r.right, r.bottom);
+
+		PaintEvent event;
+
+		if(rect.isNull()) {
+			event.setRect(widget->rect(), {});
+		}
+		else {
+			event.setRect(rect, {});
+		}
+
+		widget->processEvent(&event, {});
+
 		cairo_set_source_surface(cr, data->surface, 0, 0);
 		cairo_paint(cr);
-
 		cairo_destroy(cr);
-
 		EndPaint(hwnd, &ps);
 		return 0; }
 
