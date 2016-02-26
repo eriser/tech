@@ -479,7 +479,7 @@ void Rect<T>::setBottomRight(T x, T y)
 template<typename T>
 void Rect<T>::setBottomRight(const Point<T>& position)
 {
-	T diff = bottomRight() - position;
+	Point<T> diff = bottomRight() - position;
 	size_ += diff.asSize();
 }
 
