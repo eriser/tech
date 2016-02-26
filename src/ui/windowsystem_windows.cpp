@@ -175,6 +175,12 @@ void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& ti
 }
 
 
+void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& rect)
+{
+
+}
+
+
 void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 {
 

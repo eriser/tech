@@ -46,6 +46,8 @@ public:
 	void setWindowTaskbarButton(Widget::Handle handle, bool enabled);
 	void setWindowTitle(Widget::Handle handle, const String& title);
 
+	void repaintWindow(Widget::Handle handle, const Rect<int>& rect);
+
 	void enqueueWidgetRepaint(Widget* widget);
 	void enqueueWidgetDeletion(Widget* widget);
 

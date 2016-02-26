@@ -161,6 +161,17 @@ void WindowSystem::setWindowTitle(Widget::Handle handle, const String& title)
 }
 
 
+void WindowSystem::repaintWindow(Widget::Handle handle, const Rect<int>& rect)
+{
+	if(handle == Widget::kInvalidHandle) {
+		LOG("Unable to repaint invalid window");
+		return;
+	}
+
+	impl()->repaintWindow(handle, rect);
+}
+
+
 void WindowSystem::enqueueWidgetRepaint(Widget* widget)
 {
 	if(!widget) {

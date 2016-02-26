@@ -232,8 +232,6 @@ void Painter::setLinePattern(const std::vector<double>& pattern, double offset)
 void Painter::setLinePattern(LinePattern pattern, double offset)
 {
 	double width = cairo_get_line_width(context_);
-//	LineCap cap = static_cast<LineCap>(cairo_get_line_cap(context_));
-//	double w = cap == LineCap::kFlat ? 0.0 : width;
 
 	if(pattern == LinePattern::kSolid) {
 		cairo_set_dash(context_, nullptr, 0, offset);
@@ -252,7 +250,7 @@ void Painter::setLinePattern(LinePattern pattern, double offset)
 	}
 	else if(pattern == LinePattern::kDashDotDot) {
 		const double kValues[6] = { width * 5.0, width * 3.0, 0.1, width * 3.0,
-									0.1, width * 3.0 };
+				0.1, width * 3.0 };
 
 		cairo_set_dash(context_, kValues, 6, offset);
 	}

@@ -304,6 +304,20 @@ void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& ti
 }
 
 
+void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& rect)
+{
+	const WindowData* data = dataByHandle(handle);
+	if(!data) {
+		LOG("Unable to repaint unknown window with handle={0:#08X}", handle);
+		return;
+	}
+
+	PaintEvent event;
+	event.setRect(rect, {});
+	data->widget->processEvent(&event, {});
+}
+
+
 void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 {
 	repaintQueue_.insert(widget);
