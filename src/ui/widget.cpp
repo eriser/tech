@@ -455,7 +455,7 @@ void Widget::setGeometry(const Rect<int>& geometry)
 		processEvent(&re, {});
 
 		rect.intersect(parent_->rect());
-		parent_->repaint(rect);
+		parent_->repaint();
 	}
 }
 
@@ -509,7 +509,7 @@ void Widget::move(const Point<int>& pos)
 		processEvent(&e, {});
 
 		rect.intersect(parent_->rect());
-		parent_->repaint(rect);
+		parent_->repaint();
 	}
 }
 
@@ -547,7 +547,7 @@ void Widget::resize(const Size<int>& size)
 		processEvent(&e, {});
 
 		rect.intersect(parent_->rect());
-		parent_->repaint(rect);
+		parent_->repaint();
 	}
 }
 
@@ -797,17 +797,11 @@ void Widget::update()
 
 void Widget::repaint()
 {
-	repaint(rect());
-}
-
-
-void Widget::repaint(const Rect<int>& rect)
-{
 	if(!isVisible())
 		return;
 
 	Widget* widget = this;
-	Rect<int> r = rect;
+	Rect<int> r = rect();
 
 	// Step down to the lowest widget (window)
 	while(widget->parent_) {
@@ -815,13 +809,20 @@ void Widget::repaint(const Rect<int>& rect)
 		widget = widget->parent_;
 	}
 
+	WINDOW_SYSTEM->repaintWindow(widget->handle_, r);
+	WINDOW_SYSTEM->sync();
+}
+
+
+void Widget::repaint(const Rect<int>& rect)
+{
 	Painter painter(surface_, {});
 	painter.beginOffscreenPaint();
 
 	painter.setSource(Color::kWhite);
 	painter.paint();
 
-	widget->repaint(&painter, r, Point<int>());
+	repaint(&painter, rect, Point<int>());
 
 	painter.applyOffscreenPaint();
 	WINDOW_SYSTEM->sync();
@@ -1276,7 +1277,8 @@ void Widget::processEvent(Event* event, PassKey<Widget, WindowSystemPrivate>)
 		return; }
 
 	case Event::kPaint: {
-		repaint();
+		PaintEvent* e = static_cast<PaintEvent*>(event);
+		repaint(e->rect());
 
 		// repaint() calls the dispatchEvent() by itself so we don't need to call it one
 		// more time
