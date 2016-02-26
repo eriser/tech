@@ -197,7 +197,18 @@ void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& 
 
 void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 {
+	Rect<int> rect = widget->rect();
+
+	// Step down to the lowest widget (window)
+	while(widget->parent()) {
+		rect.translate(widget->pos());
+		widget = widget->parent();
+	}
+
+	RECT r = { rect.left(), rect.top(), rect.right(), rect.bottom() };
+
 	HWND hwnd = reinterpret_cast<HWND>(widget->handle());
+	InvalidateRect(hwnd, &r, false);
 	UpdateWindow(hwnd);
 }
 
@@ -378,6 +389,42 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		data->widget->processEvent(&e, {});
 		data->hasMouse = false;
 
+		return 0; }
+
+	case WM_LBUTTONDOWN: {
+//		Point<int> pos(x, y);
+//		Point<int> globalPos(ev->root_x, ev->root_y);
+
+		MouseEvent e(Event::kMousePress);
+//		e.setTimestamp(ev->time, {});
+//		e.setModifiers(translateKeyModifier(ev->state), {});
+//		e.setPos(pos, {});
+//		e.setWindowPos(pos, {});
+//		e.setGlobalPos(globalPos, {});
+
+		e.setButton(MouseButton::kLeft, {});
+		data->widget->processEvent(&e, {});
+		return 0; }
+
+	case WM_LBUTTONUP: {
+//		Point<int> pos(x, y);
+//		Point<int> globalPos(ev->root_x, ev->root_y);
+
+		MouseEvent e(Event::kMouseRelease);
+//		e.setTimestamp(ev->time, {});
+//		e.setModifiers(translateKeyModifier(ev->state), {});
+//		e.setPos(pos, {});
+//		e.setWindowPos(pos, {});
+//		e.setGlobalPos(globalPos, {});
+
+		e.setButton(MouseButton::kLeft, {});
+		data->widget->processEvent(&e, {});
+		return 0; }
+
+	case WM_RBUTTONDOWN: {
+		return 0; }
+
+	case WM_RBUTTONUP: {
 		return 0; }
 
 	case WM_PAINT: {
