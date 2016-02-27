@@ -24,7 +24,6 @@ Widget::Widget(Widget* parent, WindowFlags flags) :
 Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 		WindowFlags flags) :
 	handle_(0),
-	surface_(nullptr),
 	windowFlags_(flags),
 	isEnabled_(true),
 	hasDisabledParent_(false),
@@ -58,7 +57,6 @@ Widget::Widget(int x, int y, int width, int height, Widget* parent, WindowFlags 
 
 Widget::Widget(int x, int y, int width, int height, Widget::Handle embedder) :
 	handle_(0),
-	surface_(nullptr),
 	windowFlags_(WindowFlag::kFrameless),
 	isEnabled_(true),
 	hasDisabledParent_(false),
@@ -584,8 +582,9 @@ void Widget::setParent(Handle embedder, int x, int y)
 
 void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder)
 {
-	if(surface_ && newParent == parent_ && embedder == embedder_)
-		return;
+	// FIXME
+//	if(newParent == parent_ && embedder == embedder_)
+//		return;
 
 	// Widget should become invisible when its parent changed
 	hide();
@@ -628,7 +627,6 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 			newParent->last_ = this;
 
 		pos_ = pos;
-		surface_ = newParent->surface_;
 
 		hasHiddenParent_ = !newParent->isVisible();
 
@@ -654,8 +652,6 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 			LOG("Unable to create native window");
 			return;
 		}
-
-		surface_ = WINDOW_SYSTEM->windowSurface(handle_);
 
 		if(embedder == kInvalidHandle) {
 			WINDOW_SYSTEM->moveWindow(handle_, pos_);
@@ -814,17 +810,17 @@ void Widget::repaint()
 }
 
 
-void Widget::repaint(const Rect<int>& rect)
+void Widget::repaint(PaintEvent* event)
 {
-	Painter painter(surface_, {});
-	painter.beginOffscreenPaint();
+	Painter* painter = event->painter();
+	painter->beginOffscreenPaint();
 
-	painter.setSource(Color::kWhite);
-	painter.paint();
+	painter->setSource(Color::kWhite);
+	painter->paint();
 
-	repaint(&painter, rect, Point<int>());
+	repaint(painter, event->rect(), Point<int>());
 
-	painter.applyOffscreenPaint();
+	painter->applyOffscreenPaint();
 	WINDOW_SYSTEM->sync();
 }
 
@@ -1277,8 +1273,7 @@ void Widget::processEvent(Event* event, PassKey<Widget, WindowSystemPrivate>)
 		return; }
 
 	case Event::kPaint: {
-		PaintEvent* e = static_cast<PaintEvent*>(event);
-		repaint(e->rect());
+		repaint(static_cast<PaintEvent*>(event));
 
 		// repaint() calls the dispatchEvent() by itself so we don't need to call it one
 		// more time

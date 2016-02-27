@@ -224,10 +224,6 @@ private:
 	// Window handle. Widgets without a parent have an invalid handle (kInvalidHandle).
 	Handle handle_;
 
-	// Window surface. For all child widgets the surface_ is pointed to the farthest
-	// parent's (window) surface.
-	cairo_surface_t* surface_;
-
 	WindowFlags windowFlags_;
 
 	struct {
@@ -326,7 +322,7 @@ private:
 	Widget* processMouseEvent(MouseEvent* event);
 	void updateFocus(Widget* window);
 
-	void repaint(const Rect<int>& rect);
+	void repaint(PaintEvent* event);
 	void repaint(Painter* painter, const Rect<int>& rect, const Point<int>& pos);
 };
 

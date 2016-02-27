@@ -20,7 +20,7 @@ namespace Tech {
 
 class Gradient;
 class Image;
-class Widget;
+class WindowSystemPrivate;
 
 
 // WARNING! This enumeration must match to the values of the cairo_antialias_t enum
@@ -191,7 +191,7 @@ public:
 	void drawText(int x, int y, const String& text);
 
 restricted:
-	Painter(cairo_surface_t* surface, PassKey<Widget>);
+	Painter(cairo_surface_t* surface, PassKey<WindowSystemPrivate>);
 
 private:
 	cairo_t* context_;

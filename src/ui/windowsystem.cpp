@@ -72,17 +72,6 @@ Widget* WindowSystem::findWindow(Widget::Handle handle) const
 }
 
 
-cairo_surface_t* WindowSystem::windowSurface(Widget::Handle handle) const
-{
-	if(handle == Widget::kInvalidHandle) {
-		LOG("Unable to get surface of invalid window");
-		return nullptr;
-	}
-
-	return impl()->windowSurface(handle);
-}
-
-
 void WindowSystem::setWindowSizeLimits(Widget::Handle handle, const Size<int>& minSize,
 		const Size<int>& maxSize)
 {

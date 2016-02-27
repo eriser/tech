@@ -7,6 +7,7 @@
 #include <tech/logger.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb.h>
+#include <tech/ui/painter.h>
 
 
 namespace Tech {
@@ -192,18 +193,6 @@ Widget* WindowSystemPrivate::findWindow(Widget::Handle handle) const
 }
 
 
-cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
-{
-	const WindowData* data = dataByHandle(handle);
-	if(!data) {
-		LOG("Unable to get surface of window with handle={0:#08X}", handle);
-		return nullptr;
-	}
-
-	return data->surface;
-}
-
-
 void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
 		const Size<int>& minSize, const Size<int>& maxSize)
 {
@@ -312,7 +301,10 @@ void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& 
 		return;
 	}
 
+	Painter painter(data->surface, {});
+
 	PaintEvent event;
+	event.setPainter(&painter, {});
 	event.setRect(rect, {});
 	data->widget->processEvent(&event, {});
 }
@@ -527,7 +519,10 @@ void WindowSystemPrivate::processWindowEvents()
 
 			const WindowData* data = dataByHandle(ev->window);
 			if(data) {
+				Painter painter(data->surface, {});
+
 				PaintEvent e;
+				e.setPainter(&painter, {});
 				e.setRect(Rect<int>(ev->x, ev->y, ev->width, ev->height), {});
 				data->widget->processEvent(&e, {});
 			}

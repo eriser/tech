@@ -29,7 +29,7 @@ Painter::Path::~Path()
 }
 
 
-Painter::Painter(cairo_surface_t* surface, PassKey<Widget>) :
+Painter::Painter(cairo_surface_t* surface, PassKey<WindowSystemPrivate>) :
 	context_(cairo_create(surface)),
 	surface_(surface)
 {

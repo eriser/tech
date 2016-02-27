@@ -9,9 +9,6 @@
 #include <tech/ui/widget.h>
 
 
-using cairo_surface_t = struct _cairo_surface;
-
-
 namespace Tech {
 
 
@@ -32,8 +29,6 @@ public:
 
 	void destroyWindow(Widget::Handle handle);
 	Widget* findWindow(Widget::Handle handle) const;
-
-	cairo_surface_t* windowSurface(Widget::Handle handle) const;
 
 	void setWindowSizeLimits(Widget::Handle handle, const Size<int>& minSize,
 			const Size<int>& maxSize);
