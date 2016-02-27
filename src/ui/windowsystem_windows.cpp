@@ -392,6 +392,7 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		return 0; }
 
 	case WM_LBUTTONDOWN: {
+        SetCapture(hwnd);
 //		Point<int> pos(x, y);
 //		Point<int> globalPos(ev->root_x, ev->root_y);
 
@@ -407,6 +408,7 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		return 0; }
 
 	case WM_LBUTTONUP: {
+        ReleaseCapture();
 //		Point<int> pos(x, y);
 //		Point<int> globalPos(ev->root_x, ev->root_y);
 
@@ -422,10 +424,12 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		return 0; }
 
 	case WM_RBUTTONDOWN: {
-		return 0; }
+        SetCapture(hwnd);
+        return 0; }
 
 	case WM_RBUTTONUP: {
-		return 0; }
+        ReleaseCapture();
+        return 0; }
 
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
