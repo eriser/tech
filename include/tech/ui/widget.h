@@ -323,7 +323,7 @@ private:
 	void updateFocus(Widget* window);
 
 	void repaint(PaintEvent* event);
-	void repaint(Painter* painter, const Rect<int>& rect, const Point<int>& pos);
+	void repaint(PaintEvent* event, const Point<int>& pos);
 };
 
 
