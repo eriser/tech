@@ -1401,11 +1401,14 @@ void Widget::sendMouseLeave()
 		widget = widget->hover_;
 
 	widget->lastButton_ = MouseButton::kNone;
+	widget->hover_ = nullptr;
 
 	Event event(Event::kMouseLeave);
 
 	while(widget != this->parent_) {
-		widget->hover_ = nullptr;
+		if(widget->parent_)
+			widget->parent_->hover_ = nullptr;
+
 		widget->dispatchEvent(&event);
 		widget = widget->parent_;
 	}
