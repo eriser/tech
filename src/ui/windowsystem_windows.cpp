@@ -2,6 +2,7 @@
 
 #include <windowsx.h>
 #include <tech/logger.h>
+#include <tech/ui/painter.h>
 
 
 namespace Tech {
@@ -60,18 +61,18 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-	cairo_surface_t* surface = cairo_win32_surface_create_with_dib(
-			CAIRO_FORMAT_RGB24, widget->width(), widget->height());
+//	cairo_surface_t* surface = cairo_win32_surface_create_with_dib(
+//			CAIRO_FORMAT_RGB24, widget->width(), widget->height());
 
-	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-		LOG("Unable to create cairo Win32 surface");
-		DestroyWindow(hwnd);
-		UnregisterClass(kWindowClass, GetModuleHandle(nullptr));
-		return Widget::kInvalidHandle;
-	}
+//	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+//		LOG("Unable to create cairo Win32 surface");
+//		DestroyWindow(hwnd);
+//		UnregisterClass(kWindowClass, GetModuleHandle(nullptr));
+//		return Widget::kInvalidHandle;
+//	}
 
 	Widget::Handle handle = reinterpret_cast<Widget::Handle>(hwnd);
-	dataByHandle_.emplace(makePair(handle, WindowData{widget, surface, false}));
+    dataByHandle_.emplace(makePair(handle, WindowData{widget, false}));
 
 	return reinterpret_cast<iptr>(hwnd);
 }
@@ -84,7 +85,7 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 		return;
 	}
 
-	cairo_surface_finish(data->surface);
+//	cairo_surface_finish(data->surface);
 	DestroyWindow(reinterpret_cast<HWND>(handle));
 	UnregisterClass(kWindowClass, GetModuleHandle(nullptr));
 	dataByHandle_.erase(handle);
@@ -99,18 +100,6 @@ Widget* WindowSystemPrivate::findWindow(Widget::Handle handle) const
 	}
 
 	return data->widget;
-}
-
-
-cairo_surface_t* WindowSystemPrivate::windowSurface(Widget::Handle handle) const
-{
-	const WindowData* data = dataByHandle(handle);
-	if(!data) {
-		LOG("Unable to get surface of window with handle={0:#08X}", handle);
-		return nullptr;
-	}
-
-	return data->surface;
 }
 
 
@@ -207,6 +196,7 @@ void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 
 	RECT r = { rect.left(), rect.top(), rect.right(), rect.bottom() };
 
+    // FIXME
 	HWND hwnd = reinterpret_cast<HWND>(widget->handle());
 	InvalidateRect(hwnd, &r, false);
 	UpdateWindow(hwnd);
@@ -331,6 +321,17 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		ShowWindow(hwnd, SW_HIDE);
 		return 0;
 
+    case WM_SIZE: {
+        Size<int> size(LOWORD(lParam), HIWORD(lParam));
+
+        ResizeEvent e;
+        e.setSize(size, {});
+        e.setOldSize(widget->size(), {});
+        widget->processEvent(&e, {});
+
+//        widget->repaint();
+        return 0; }
+
 	case WM_MOUSEMOVE: {
 		int x = GET_X_LPARAM(lParam);
 		int y = GET_Y_LPARAM(lParam);
@@ -437,6 +438,9 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		cairo_surface_t* surface = cairo_win32_surface_create(hdc);
 		cairo_t* cr = cairo_create(surface);
 
+        cairo_surface_t* dibSurface = cairo_win32_surface_create_with_dib(
+                CAIRO_FORMAT_RGB24, widget->width(), widget->height());
+
 		RECT r;
 		GetUpdateRect(hwnd, &r, FALSE);
 
@@ -444,7 +448,10 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 		rect.setTopLeft(r.left, r.top);
 		rect.setBottomRight(r.right, r.bottom);
 
+        Painter painter(dibSurface, {});
+
 		PaintEvent event;
+        event.setPainter(&painter, {});
 
 		if(rect.isNull()) {
 			event.setRect(widget->rect(), {});
@@ -455,10 +462,13 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 
 		widget->processEvent(&event, {});
 
-		cairo_set_source_surface(cr, data->surface, 0, 0);
+        cairo_set_source_surface(cr, dibSurface, 0, 0);
 		cairo_paint(cr);
-		cairo_destroy(cr);
-		EndPaint(hwnd, &ps);
+
+        EndPaint(hwnd, &ps);
+        cairo_destroy(cr);
+        cairo_surface_finish(dibSurface);
+        cairo_surface_finish(surface);
 		return 0; }
 
 	case WM_TIMER:

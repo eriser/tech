@@ -28,7 +28,6 @@ public:
 	Widget::Handle createWindow(Widget* widget, Widget::Handle owner);
 	void destroyWindow(Widget::Handle handle);
 	Widget* findWindow(Widget::Handle handle) const;
-	cairo_surface_t* windowSurface(Widget::Handle handle) const;
 
 	void setWindowSizeLimits(Widget::Handle handle, const Size<int>& minSize,
 			const Size<int>& maxSize);
@@ -62,7 +61,7 @@ private:
 
 	struct WindowData {
 		Widget* widget;
-		cairo_surface_t* surface;
+//		cairo_surface_t* surface;
 		mutable bool hasMouse;
 	};
 
