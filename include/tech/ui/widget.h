@@ -227,6 +227,9 @@ private:
 	WindowFlags windowFlags_;
 
 	struct {
+		// Indicates that widget is initialized and setParent() can be optimized
+		bool isInitialized_      : 1;
+
 		// Indicates that widget itself is enabled, though it can still be disabled
 		// because of a disabled parent
 		bool isEnabled_          : 1;
@@ -323,7 +326,7 @@ private:
 	void updateFocus(Widget* window);
 
 	void repaint(PaintEvent* event);
-    void repaintWidget(PaintEvent* event);
+	void repaintWidget(PaintEvent* event);
 };
 
 

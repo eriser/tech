@@ -26,6 +26,7 @@ Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 		WindowFlags flags) :
 	handle_(0),
 	windowFlags_(flags),
+	isInitialized_(false),
 	isEnabled_(true),
 	hasDisabledParent_(false),
 	isVisible_(false),
@@ -47,6 +48,7 @@ Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 	maximumSize_(Limits<int>::max(), Limits<int>::max())
 {
 	setParent(parent, pos_);
+	isInitialized_ = true;
 }
 
 
@@ -583,9 +585,8 @@ void Widget::setParent(Handle embedder, int x, int y)
 
 void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder)
 {
-	// FIXME
-//	if(newParent == parent_ && embedder == embedder_)
-//		return;
+	if(isInitialized_ && newParent == parent_ && embedder == embedder_)
+		return;
 
 	// Widget should become invisible when its parent changed
 	hide();
