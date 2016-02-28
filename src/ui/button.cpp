@@ -1,6 +1,5 @@
 #include <tech/ui/button.h>
 
-#include <iostream>
 #include <tech/logger.h>
 #include <tech/ui/color.h>
 #include <tech/ui/fontmetrics.h>
@@ -76,8 +75,6 @@ void Button::handleKeyRelease(KeyEvent* event)
 
 void Button::handlePaint(PaintEvent* event)
 {
-    std::cerr << "Button::handlePaint" << std::endl;
-
 	Painter* painter = event->painter();
     painter->setLineWidth(1);
 
