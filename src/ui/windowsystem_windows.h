@@ -59,7 +59,9 @@ public:
 private:
 	static constexpr const char* kWindowClass = PROJECT_NAME;
 
-	struct WindowData {
+    HMODULE module_;
+
+    struct WindowData {
 		Widget* widget;
 //		cairo_surface_t* surface;
 		mutable bool hasMouse;
