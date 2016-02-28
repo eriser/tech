@@ -10,7 +10,7 @@ namespace Tech {
 
 WindowSystemPrivate::WindowSystemPrivate()
 {
-    module_ = GetModuleHandle(nullptr);
+	module_ = GetModuleHandle(nullptr);
 }
 
 
@@ -37,9 +37,9 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	wclass.lpfnWndProc = windowProc;
 	wclass.cbClsExtra = 0;
 	wclass.cbWndExtra = 0;
-    wclass.hInstance = module_;
-    wclass.hIcon = LoadIcon(module_, IDI_APPLICATION);
-    wclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wclass.hInstance = module_;
+	wclass.hIcon = LoadIcon(module_, IDI_APPLICATION);
+	wclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wclass.lpszClassName = kWindowClass;
 
 	if(!RegisterClassEx(&wclass)) {
@@ -52,11 +52,11 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 
 	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, kWindowClass,
 			widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
-            wr.right - wr.left, wr.bottom - wr.top, 0, 0, module_, nullptr);
+			wr.right - wr.left, wr.bottom - wr.top, 0, 0, module_, nullptr);
 
 	if(!hwnd) {
 		LOG("Unable to create window: %s", errorString().c_str());
-        UnregisterClass(kWindowClass, module_);
+		UnregisterClass(kWindowClass, module_);
 		return Widget::kInvalidHandle;
 	}
 
@@ -77,7 +77,7 @@ void WindowSystemPrivate::destroyWindow(Widget::Handle handle)
 	}
 
 	DestroyWindow(reinterpret_cast<HWND>(handle));
-    UnregisterClass(kWindowClass, module_);
+	UnregisterClass(kWindowClass, module_);
 	dataByHandle_.erase(handle);
 }
 
@@ -105,18 +105,18 @@ void WindowSystemPrivate::setWindowSizeLimits(Widget::Handle handle,
 void WindowSystemPrivate::moveWindow(Widget::Handle handle, const Point<int>& pos)
 {
 	HWND hwnd = reinterpret_cast<HWND>(handle);
-    SetWindowPos(hwnd, 0, pos.x(), pos.y(), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(hwnd, 0, pos.x(), pos.y(), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 
 void WindowSystemPrivate::resizeWindow(Widget::Handle handle, const Size<int>& size)
 {
-    RECT wr = { 0, 0, size.width(), size.height() };
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
+	RECT wr = { 0, 0, size.width(), size.height() };
+	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
 
-    HWND hwnd = reinterpret_cast<HWND>(handle);
-    SetWindowPos(hwnd, 0, 0, 0, wr.right - wr.left, wr.bottom - wr.top,
-            SWP_NOMOVE | SWP_NOZORDER);
+	HWND hwnd = reinterpret_cast<HWND>(handle);
+	SetWindowPos(hwnd, 0, 0, 0, wr.right - wr.left, wr.bottom - wr.top,
+			SWP_NOMOVE | SWP_NOZORDER);
 }
 
 
@@ -154,13 +154,10 @@ void WindowSystemPrivate::setWindowTitle(Widget::Handle handle, const String& ti
 
 void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& rect)
 {
-	RECT r;
-	r.top    = rect.top();
-	r.left   = rect.left();
-	r.right  = rect.right();
-	r.bottom = rect.bottom();
+	RECT r = { rect.left(), rect.top(), rect.right(), rect.bottom() };
 
 	HWND hwnd = reinterpret_cast<HWND>(handle);
+	InvalidateRect(hwnd, nullptr, false);
 	RedrawWindow(hwnd, &r, nullptr, RDW_INTERNALPAINT);
 }
 
@@ -179,8 +176,8 @@ void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 
     // FIXME
 	HWND hwnd = reinterpret_cast<HWND>(widget->handle());
-	InvalidateRect(hwnd, &r, false);
-	UpdateWindow(hwnd);
+	InvalidateRect(hwnd, nullptr, false);
+	RedrawWindow(hwnd, &r, nullptr, RDW_INTERNALPAINT);
 }
 
 
@@ -446,9 +443,9 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
         cairo_set_source_surface(cr, dibSurface, 0, 0);
 		cairo_paint(cr);
 
-        cairo_destroy(cr);
-        cairo_surface_finish(dibSurface);
-        cairo_surface_finish(surface);
+		cairo_destroy(cr);
+		cairo_surface_finish(dibSurface);
+		cairo_surface_finish(surface);
 
         EndPaint(hwnd, &ps);
 		return 0; }

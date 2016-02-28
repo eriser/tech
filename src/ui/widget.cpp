@@ -1,5 +1,6 @@
 #include <tech/ui/widget.h>
 
+#include <iostream>
 #include <cairo.h>
 #include <tech/logger.h>
 #include <tech/ui/layout.h>
