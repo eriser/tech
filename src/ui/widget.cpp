@@ -822,7 +822,6 @@ void Widget::repaint(PaintEvent* event)
 	repaintWidget(event);
 
 	painter->applyOffscreenPaint();
-	WINDOW_SYSTEM->sync();
 }
 
 
