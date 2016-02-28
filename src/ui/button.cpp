@@ -1,5 +1,6 @@
 #include <tech/ui/button.h>
 
+#include <iostream>
 #include <tech/logger.h>
 #include <tech/ui/color.h>
 #include <tech/ui/fontmetrics.h>
@@ -10,7 +11,7 @@ namespace Tech {
 
 
 Button::Button(const String& text, Widget* parent) :
-	Widget(0, 0, 80, 25, parent),
+    Widget(0, 0, 80, 28, parent),
 	text_(text),
 	isPressed_(false)
 {
@@ -75,16 +76,18 @@ void Button::handleKeyRelease(KeyEvent* event)
 
 void Button::handlePaint(PaintEvent* event)
 {
-	Painter* painter = event->painter();
-	painter->setLineWidth(2);
+    std::cerr << "Button::handlePaint" << std::endl;
 
-	double r = 10;
+	Painter* painter = event->painter();
+    painter->setLineWidth(1);
+
+    double r = 8;
 	double x = 1.0;
 	double y = 1.0;
 	double w = width() - 2;
 	double h = height() - 2;
 
-	painter->moveTo(x + r, y);
+    painter->moveTo(x + r, y);
 	painter->lineTo(x + w - r, y);
 	painter->curveTo(x + w, y, x + w, y, x + w, y + r);
 	painter->lineTo(x + w, y + h - r);
@@ -94,17 +97,23 @@ void Button::handlePaint(PaintEvent* event)
 	painter->lineTo(x, y + r);
 	painter->curveTo(x, y, x, y, x + r, y);
 
-	if(isPressed_) {
+    if(isPressed_) {
 		painter->setSource(Color::kMagenta);
-	}
+        painter->fill(true);
+        painter->setSource(Color::kDarkMagenta);
+    }
 	else if(isUnderMouse()) {
-		painter->setSource(Color::kBlue);
-	}
+        painter->setSource(Color(0.0, 1.0, 0.0));
+        painter->fill(true);
+        painter->setSource(Color(0.0, 0.4, 0.0));
+    }
 	else {
-		painter->setSource(Color::kDarkGray);
-	}
+        painter->setSource(Color(0.0, 0.93, 0.0));
+        painter->fill(true);
+        painter->setSource(Color(0.0, 0.5, 0.0));
+    }
 
-	painter->stroke();
+    painter->stroke();
 
 	FontMetrics fm(painter->font());
 	Size<int> size = fm.size(text_);
