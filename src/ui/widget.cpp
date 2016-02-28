@@ -818,33 +818,37 @@ void Widget::repaint(PaintEvent* event)
 	painter->setSource(Color::kWhite);
 	painter->paint();
 
-	repaint(event, Point<int>());
+	repaintWidget(event);
 
 	painter->applyOffscreenPaint();
 	WINDOW_SYSTEM->sync();
 }
 
 
-void Widget::repaint(PaintEvent* event, const Point<int>& pos)
+void Widget::repaintWidget(PaintEvent* event)
 {
 	Painter* painter = event->painter();
 	painter->save();
-	painter->translate(pos.x(), pos.y());
-	painter->setClipRect(this->rect());
+
+	if(parent_)
+		painter->translate(pos().x(), pos().y());
+
+	painter->setClipRect(rect());
 
 	PaintEvent e(*event);
-	e.setRect(event->rect().translated(-pos), {});
 	dispatchEvent(&e);
 
 	painter->restore();
-	painter->resetClip();
 
 	// Repaint child widgets from bottom to top
 	Widget* widget = last_;
 
 	while(widget) {
-		e.setRect(event->rect().intersected(widget->geometry()), {});
-		widget->repaint(&e, pos + widget->pos_);
+		Rect<int> r = event->rect().intersected(widget->geometry());
+		r.translate(-widget->pos());
+		e.setRect(r, {});
+		widget->repaintWidget(&e);
+
 		widget = widget->previous_;
 	}
 }

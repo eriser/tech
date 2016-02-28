@@ -38,8 +38,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	wclass.cbClsExtra = 0;
 	wclass.cbWndExtra = 0;
     wclass.hInstance = module_;
-    wclass.hIcon = LoadIcon(module_, kWindowClass);
-	wclass.hCursor = LoadCursor(0, IDI_APPLICATION);
+    wclass.hIcon = LoadIcon(module_, IDI_APPLICATION);
+    wclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wclass.lpszClassName = kWindowClass;
 
 	if(!RegisterClassEx(&wclass)) {
@@ -446,10 +446,11 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
         cairo_set_source_surface(cr, dibSurface, 0, 0);
 		cairo_paint(cr);
 
-        EndPaint(hwnd, &ps);
         cairo_destroy(cr);
         cairo_surface_finish(dibSurface);
         cairo_surface_finish(surface);
+
+        EndPaint(hwnd, &ps);
 		return 0; }
 
 	case WM_TIMER:
