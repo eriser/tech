@@ -77,7 +77,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	}
 
 	RECT wr = { 0, 0, widget->width(), widget->height() };
-	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
+	if(owner == Widget::kInvalidHandle)
+		AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
 
 	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, kWindowClass,
 			widget->windowTitle().toUtf8(), WS_OVERLAPPEDWINDOW, widget->x(), widget->y(),
@@ -221,7 +222,7 @@ void WindowSystemPrivate::destroyTimer(Timer::Handle handle)
 
 
 void WindowSystemPrivate::startTimer(Timer::Handle handle, Duration timeout,
-									 bool periodic)
+		bool periodic)
 {
 
 }
@@ -306,7 +307,6 @@ LRESULT CALLBACK WindowSystemPrivate::commandProc(HWND hwnd, UINT message, WPARA
 	WindowSystemPrivate* self = reinterpret_cast<WindowSystemPrivate*>(ptr);
 	if(!self)
 		return DefWindowProc(hwnd, message, wParam, lParam);
-
 
 	switch(message) {
 	case WM_REPAINT_WIDGETS:
