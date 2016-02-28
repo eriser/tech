@@ -3,8 +3,6 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <cairo.h>
-#include <cairo-win32.h>
 #include <windows.h>
 #include <tech/string.h>
 #include <tech/timecounter.h>
@@ -59,21 +57,27 @@ public:
 private:
 	static constexpr const char* kWindowClass = PROJECT_NAME;
 
-    HMODULE module_;
+	HMODULE module_;
+	HWND commandHwnd_;
 
-    struct WindowData {
+	struct WindowData {
 		Widget* widget;
-//		cairo_surface_t* surface;
 		mutable bool hasMouse;
 	};
 
 	std::unordered_map <Widget::Handle, WindowData> dataByHandle_;
 	std::unordered_map<Timer::Handle, Timer*> timerByHandle_;
 
+	std::unordered_set<Widget*> repaintQueue_;
+	std::unordered_set<Widget*> deletionQueue_;
+
 	const WindowData* dataByHandle(Widget::Handle handle) const;
 	static std::string errorString();
 
-	static LRESULT CALLBACK	windowProc(HWND	hwnd, UINT message, WPARAM wParam,
+	static LRESULT CALLBACK	commandProc(HWND hwnd, UINT message, WPARAM wParam,
+			LPARAM lParam);
+
+	static LRESULT CALLBACK	windowProc(HWND hwnd, UINT message, WPARAM wParam,
 			LPARAM lParam);
 };
 

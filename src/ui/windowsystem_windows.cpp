@@ -1,8 +1,14 @@
 #include "windowsystem_windows.h"
 
+#include <cairo.h>
+#include <cairo-win32.h>
 #include <windowsx.h>
 #include <tech/logger.h>
 #include <tech/ui/painter.h>
+
+#define WM_STOP_PROCESSING (WM_USER + 0)
+#define WM_REPAINT_WIDGETS (WM_USER + 1)
+#define WM_DELETE_WIDGETS  (WM_USER + 2)
 
 
 namespace Tech {
@@ -11,12 +17,35 @@ namespace Tech {
 WindowSystemPrivate::WindowSystemPrivate()
 {
 	module_ = GetModuleHandle(nullptr);
+
+	WNDCLASS wc;
+	std::memset(&wc, 0, sizeof(WNDCLASSEX));
+
+	wc.lpfnWndProc = commandProc;
+	wc.hInstance = module_;
+	wc.lpszClassName = "WindowSystemPrivate";
+
+	if(!RegisterClass(&wc)) {
+		LOG("Unable to register window class: {0}", errorString());
+		return;
+	}
+
+	commandHwnd_ = CreateWindow(wc.lpszClassName, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr,
+			nullptr);
+
+	if(!commandHwnd_) {
+		LOG("Unable to allocate hwnd for commands: %s", errorString().c_str());
+		return;
+	}
+
+	SetWindowLongPtr(commandHwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 }
 
 
 WindowSystemPrivate::~WindowSystemPrivate()
 {
-
+	DestroyWindow(commandHwnd_);
+//	UnregisterClass(kWindowClass, module_);
 }
 
 
@@ -28,7 +57,6 @@ void WindowSystemPrivate::sync()
 
 Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle owner)
 {
-
 	WNDCLASSEX wclass;
 	std::memset(&wclass, 0, sizeof(WNDCLASSEX));
 
@@ -38,7 +66,8 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 	wclass.cbClsExtra = 0;
 	wclass.cbWndExtra = 0;
 	wclass.hInstance = module_;
-	wclass.hIcon = LoadIcon(module_, IDI_APPLICATION);
+	wclass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+	wclass.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
 	wclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wclass.lpszClassName = kWindowClass;
 
@@ -164,26 +193,17 @@ void WindowSystemPrivate::repaintWindow(Widget::Handle handle, const Rect<int>& 
 
 void WindowSystemPrivate::enqueueWidgetRepaint(Widget* widget)
 {
-	Rect<int> rect = widget->rect();
-
-	// Step down to the lowest widget (window)
-	while(widget->parent()) {
-		rect.translate(widget->pos());
-		widget = widget->parent();
-	}
-
-	RECT r = { rect.left(), rect.top(), rect.right(), rect.bottom() };
-
-    // FIXME
-	HWND hwnd = reinterpret_cast<HWND>(widget->handle());
-	InvalidateRect(hwnd, nullptr, false);
-	RedrawWindow(hwnd, &r, nullptr, RDW_INTERNALPAINT);
+	repaintQueue_.insert(widget);
+	if(repaintQueue_.size() == 1)
+		PostMessage(commandHwnd_, WM_REPAINT_WIDGETS, 0, 0);
 }
 
 
 void WindowSystemPrivate::enqueueWidgetDeletion(Widget* widget)
 {
-
+	deletionQueue_.insert(widget);
+	if(deletionQueue_.size() == 1)
+		PostMessage(commandHwnd_, WM_DELETE_WIDGETS, 0, 0);
 }
 
 
@@ -279,8 +299,57 @@ std::string WindowSystemPrivate::errorString()
 }
 
 
-LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
-												 wParam, LPARAM lParam)
+LRESULT CALLBACK WindowSystemPrivate::commandProc(HWND hwnd, UINT message, WPARAM wParam,
+		LPARAM lParam)
+{
+	LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	WindowSystemPrivate* self = reinterpret_cast<WindowSystemPrivate*>(ptr);
+	if(!self)
+		return DefWindowProc(hwnd, message, wParam, lParam);
+
+
+	switch(message) {
+	case WM_REPAINT_WIDGETS:
+		while(!self->repaintQueue_.empty()) {
+			auto it = self->repaintQueue_.begin();
+
+			Widget* widget = (*it);
+			Rect<int> rect = widget->rect();
+
+			// Step down to the lowest widget (window)
+			while(widget->parent()) {
+				rect.translate(widget->pos());
+				widget = widget->parent();
+			}
+
+			RECT r = { rect.left(), rect.top(), rect.right(), rect.bottom() };
+
+			HWND hwnd = reinterpret_cast<HWND>(widget->handle());
+			InvalidateRect(hwnd, nullptr, false);
+			RedrawWindow(hwnd, &r, nullptr, RDW_INTERNALPAINT);
+
+			self->repaintQueue_.erase(it);
+		}
+
+		return 0;
+
+	case WM_DELETE_WIDGETS:
+		while(!self->deletionQueue_.empty()) {
+			auto it = self->deletionQueue_.begin();
+			delete (*it);
+			self->deletionQueue_.erase(it);
+		}
+
+		return 0;
+	}
+
+	return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+
+
+LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM wParam,
+		LPARAM lParam)
 {
 	LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	WindowSystemPrivate* self = reinterpret_cast<WindowSystemPrivate*>(ptr);
