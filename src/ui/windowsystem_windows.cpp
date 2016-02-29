@@ -252,6 +252,9 @@ void WindowSystemPrivate::processEvents()
 	MSG message;
 
 	while(GetMessage(&message, nullptr, 0, 0) > 0) {
+//		if(message.message == WM_QUIT)
+//			break;
+
 		TranslateMessage(&message);
 		DispatchMessage(&message);
 	}
@@ -260,7 +263,7 @@ void WindowSystemPrivate::processEvents()
 
 void WindowSystemPrivate::stopEventProcessing()
 {
-
+	PostMessage(commandHwnd_, WM_STOP_PROCESSING, 0, 0);
 }
 
 
@@ -309,6 +312,16 @@ LRESULT CALLBACK WindowSystemPrivate::commandProc(HWND hwnd, UINT message, WPARA
 		return DefWindowProc(hwnd, message, wParam, lParam);
 
 	switch(message) {
+	case WM_STOP_PROCESSING:
+		while(!self->deletionQueue_.empty()) {
+			auto it = self->deletionQueue_.begin();
+			delete (*it);
+			self->deletionQueue_.erase(it);
+		}
+
+		PostQuitMessage(0);
+		return 0;
+
 	case WM_REPAINT_WIDGETS:
 		while(!self->repaintQueue_.empty()) {
 			auto it = self->repaintQueue_.begin();
@@ -364,9 +377,11 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 	Widget* widget = data->widget;
 
 	switch(message) {
-	case WM_CLOSE:
+	case WM_CLOSE: {
 		ShowWindow(hwnd, SW_HIDE);
-		return 0;
+		Event event(Event::kClose);
+		widget->processEvent(&event, {});
+		return 0; }
 
     case WM_SIZE: {
         Size<int> size(LOWORD(lParam), HIWORD(lParam));
