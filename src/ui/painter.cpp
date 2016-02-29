@@ -523,6 +523,20 @@ void Painter::rectangle(const Rect<double>& rect)
 }
 
 
+void Painter::roundedRectangle(double x, double y, double w, double h, double r)
+{
+	cairo_move_to(context_, x + r, y);
+	cairo_line_to(context_, x + w - r, y);
+	cairo_curve_to(context_, x + w, y, x + w, y, x + w, y + r);
+	cairo_line_to(context_, x + w, y + h - r);
+	cairo_curve_to(context_, x + w, y + h, x + w, y + h, x + w - r, y + h);
+	cairo_line_to(context_, x + r, y + h);
+	cairo_curve_to(context_, x, y + h, x, y + h, x, y + h - r);
+	cairo_line_to(context_, x, y + r);
+	cairo_curve_to(context_, x, y, x, y, x + r, y);
+}
+
+
 void Painter::setSource(const Color& color)
 {
 	cairo_set_source_rgba(context_, color.red_, color.green_, color.blue_, color.alpha_);

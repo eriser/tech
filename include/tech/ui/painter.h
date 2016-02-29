@@ -165,6 +165,8 @@ public:
 	void rectangle(const Rect<int>& rect);
 	void rectangle(const Rect<double>& rect);
 
+	void roundedRectangle(double x, double y, double width, double height, double radius);
+
 	void setSource(const Color& color);
 	void setSource(const Gradient& gradient);
 	void setSource(const Image& image);
