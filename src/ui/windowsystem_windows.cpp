@@ -39,6 +39,8 @@ WindowSystemPrivate::WindowSystemPrivate()
 	}
 
 	SetWindowLongPtr(commandHwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+	nextTimerId_ = 1;
 }
 
 
@@ -210,27 +212,31 @@ void WindowSystemPrivate::enqueueWidgetDeletion(Widget* widget)
 
 Timer::Handle WindowSystemPrivate::createTimer(Timer* timer)
 {
-	// FIXME
-	return Timer::kInvalidHandle;
+	Timer::Handle handle = nextTimerId_++;
+	timerByHandle_.insert(makePair(handle, timer));
+	return handle;
 }
 
 
 void WindowSystemPrivate::destroyTimer(Timer::Handle handle)
 {
+	// FIXME
+	KillTimer(commandHwnd_, handle);
 
+	timerByHandle_.erase(handle);
 }
 
 
 void WindowSystemPrivate::startTimer(Timer::Handle handle, Duration timeout,
 		bool periodic)
 {
-
+	SetTimer(commandHwnd_, handle, timeout.mseconds(), nullptr);
 }
 
 
 void WindowSystemPrivate::stopTimer(Timer::Handle handle)
 {
-
+	KillTimer(commandHwnd_, handle);
 }
 
 
@@ -252,8 +258,8 @@ void WindowSystemPrivate::processEvents()
 	MSG message;
 
 	while(GetMessage(&message, nullptr, 0, 0) > 0) {
-//		if(message.message == WM_QUIT)
-//			break;
+		if(message.message == WM_QUIT)
+			break;
 
 		TranslateMessage(&message);
 		DispatchMessage(&message);
@@ -352,6 +358,13 @@ LRESULT CALLBACK WindowSystemPrivate::commandProc(HWND hwnd, UINT message, WPARA
 			delete (*it);
 			self->deletionQueue_.erase(it);
 		}
+
+		return 0;
+
+	case WM_TIMER:
+		auto it = self->timerByHandle_.find(wParam);
+		if(it != self->timerByHandle_.end())
+			it->second->timeout({});
 
 		return 0;
 	}
@@ -533,9 +546,6 @@ LRESULT CALLBACK WindowSystemPrivate::windowProc(HWND hwnd, UINT message, WPARAM
 
         EndPaint(hwnd, &ps);
 		return 0; }
-
-	case WM_TIMER:
-		break;
 
 	case WM_GETMINMAXINFO: {
 		MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
