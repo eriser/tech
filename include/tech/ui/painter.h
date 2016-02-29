@@ -100,8 +100,7 @@ public:
 	Point<double> mapFromDevice(const Point<double>& point) const;
 	Point<double> mapDistanceFromDevice(const Point<double>& point) const;
 
-	void setClipRect(int x, int y, int width, int height);
-	void setClipRect(const Rect<int>& rect);
+	void clip(bool preserve = false);
 	void resetClip();
 
 	Font font() const;

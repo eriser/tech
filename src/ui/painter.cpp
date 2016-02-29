@@ -163,16 +163,14 @@ Point<double> Painter::mapDistanceFromDevice(const Point<double>& point) const
 }
 
 
-void Painter::setClipRect(int x, int y, int width, int height)
+void Painter::clip(bool preserve)
 {
-	cairo_rectangle(context_, x, y, width, height);
-	cairo_clip(context_);
-}
-
-
-void Painter::setClipRect(const Rect<int>& rect)
-{
-	setClipRect(rect.x(), rect.y(), rect.width(), rect.height());
+	if(preserve) {
+		cairo_clip_preserve(context_);
+	}
+	else {
+		cairo_clip(context_);
+	}
 }
 
 

@@ -834,7 +834,8 @@ void Widget::repaintWidget(PaintEvent* event)
 	if(parent_)
 		painter->translate(pos().x(), pos().y());
 
-	painter->setClipRect(rect());
+	painter->rectangle(rect());
+	painter->clip();
 
 	PaintEvent e(*event);
 	dispatchEvent(&e);
