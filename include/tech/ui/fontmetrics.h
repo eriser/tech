@@ -40,7 +40,7 @@ public:
 
 private:
 	class Data;
-	static thread_local Box<Data> data_;
+	static /*thread_local*/ Box<Data> data_;
 
 	PangoLayout* layout_;
 	PangoFontMetrics* metrics_;
