@@ -26,7 +26,7 @@ public:
 };
 
 
-thread_local Box<FontMetrics::Data> FontMetrics::data_ = makeBox<FontMetrics::Data>();
+/*thread_local*/ Box<FontMetrics::Data> FontMetrics::data_ = makeBox<FontMetrics::Data>();
 
 
 FontMetrics::FontMetrics(const Font& font)

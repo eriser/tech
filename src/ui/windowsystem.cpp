@@ -16,7 +16,7 @@ WindowSystem::WindowSystem() :
 
 WindowSystem* WindowSystem::instance()
 {
-	static WindowSystem instance;
+	static thread_local WindowSystem instance;
 	return &instance;
 }
 

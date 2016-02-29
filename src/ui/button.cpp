@@ -117,7 +117,7 @@ void Button::handlePaint(PaintEvent* event)
 
 	x = width() / 2 - size.width() / 2;
 	y = height() / 2 - size.height() / 2;
-    painter->drawText(x, y, text_);
+	painter->drawText(x, y, text_);
 }
 
 

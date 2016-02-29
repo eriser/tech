@@ -59,6 +59,7 @@ private:
 
 	HMODULE module_;
 	HWND commandHwnd_;
+	UINT_PTR nextTimerId_;
 
 	struct WindowData {
 		Widget* widget;

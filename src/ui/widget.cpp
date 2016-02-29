@@ -24,7 +24,7 @@ Widget::Widget(Widget* parent, WindowFlags flags) :
 
 Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 		WindowFlags flags) :
-	handle_(0),
+	handle_(kInvalidHandle),
 	windowFlags_(flags),
 	isInitialized_(false),
 	isEnabled_(true),
