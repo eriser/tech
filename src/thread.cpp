@@ -7,7 +7,7 @@ namespace Tech {
 
 
 Thread::Thread() :
-	exitFlag_(ATOMIC_FLAG_INIT),
+	exitFlag_(false),
 	state_(ThreadState::kStopped)
 {
 }
