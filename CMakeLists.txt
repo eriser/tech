@@ -65,7 +65,9 @@ configure_file(
 add_subdirectory(src)
 
 # Run unit tests ------------------------------------------------------------------------
-if(TECH_ENABLE_TESTS)
+find_package(GTest)
+
+if(GTEST_FOUND AND TECH_ENABLE_TESTS)
 	enable_testing()
 	add_subdirectory(test)
 endif()
