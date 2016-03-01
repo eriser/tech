@@ -124,7 +124,7 @@ String FontMetrics::elidedText(const String& text, ElideMode mode, int width) co
 	PangoLayoutRun* run = static_cast<PangoLayoutRun*>(line->runs->data);
 	uint length = static_cast<uint>(run->glyphs->num_glyphs);
 
-	if(run->item->analysis.flags && PANGO_ANALYSIS_FLAG_IS_ELLIPSIS)
+	if(run->item->analysis.flags & PANGO_ANALYSIS_FLAG_IS_ELLIPSIS)
 		return u"…";
 
 	pango_layout_set_ellipsize(layout_, PANGO_ELLIPSIZE_NONE);
