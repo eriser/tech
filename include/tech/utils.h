@@ -57,7 +57,7 @@ constexpr const T& minOf(const T& a, const T& b)
  * Returns the minimum value of all arguments.
  */
 template<typename T, typename ...Rest>
-constexpr const T& minOf(const T& first, const Rest&... rest...)
+constexpr const T& minOf(const T& first, const Rest&... rest)
 {
 	return minOf(first, minOf(rest...));
 }
@@ -77,7 +77,7 @@ constexpr const T& maxOf(const T& a, const T& b)
  * Returns the maximum value of all arguments.
  */
 template<typename T, typename ...Rest>
-constexpr const T& maxOf(const T& first, const Rest&... rest...)
+constexpr const T& maxOf(const T& first, const Rest&... rest)
 {
 	return maxOf(first, maxOf(rest...));
 }
