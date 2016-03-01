@@ -78,21 +78,7 @@ void Button::handlePaint(PaintEvent* event)
     Painter* painter = event->painter();
     painter->setLineWidth(1);
 
-    double r = 8;
-	double x = 1.0;
-	double y = 1.0;
-	double w = width() - 2;
-	double h = height() - 2;
-
-    painter->moveTo(x + r, y);
-	painter->lineTo(x + w - r, y);
-	painter->curveTo(x + w, y, x + w, y, x + w, y + r);
-	painter->lineTo(x + w, y + h - r);
-	painter->curveTo(x + w, y + h, x + w, y + h, x + w - r, y + h);
-	painter->lineTo(x + r, y + h);
-	painter->curveTo(x, y + h, x, y + h, x, y + h - r);
-	painter->lineTo(x, y + r);
-	painter->curveTo(x, y, x, y, x + r, y);
+	painter->roundedRectangle(1.0, 1.0, width() - 2, height() - 2, 8.0);
 
     if(isPressed_) {
 		painter->setSource(Color::kMagenta);
@@ -115,8 +101,8 @@ void Button::handlePaint(PaintEvent* event)
 	FontMetrics fm(painter->font());
 	Size<int> size = fm.size(text_);
 
-	x = width() / 2 - size.width() / 2;
-	y = height() / 2 - size.height() / 2;
+	double x = width() / 2 - size.width() / 2;
+	double y = height() / 2 - size.height() / 2;
 	painter->drawText(x, y, text_);
 }
 
