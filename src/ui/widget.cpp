@@ -1,13 +1,9 @@
 #include <tech/ui/widget.h>
 
-#include <iostream>
-#include <cairo.h>
 #include <tech/logger.h>
 #include <tech/ui/layout.h>
 #include <tech/ui/painter.h>
 #include "windowsystem.h"
-
-#define WINDOW_SYSTEM	WindowSystem::instance()
 
 
 namespace Tech {
@@ -24,6 +20,7 @@ Widget::Widget(Widget* parent, WindowFlags flags) :
 
 Widget::Widget(const Point<int>& pos, const Size<int>& size, Widget* parent,
 		WindowFlags flags) :
+	ws_(WindowSystem::instance()),
 	handle_(kInvalidHandle),
 	windowFlags_(flags),
 	isInitialized_(false),
@@ -59,7 +56,8 @@ Widget::Widget(int x, int y, int width, int height, Widget* parent, WindowFlags 
 
 
 Widget::Widget(int x, int y, int width, int height, Widget::Handle embedder) :
-	handle_(0),
+	ws_(WindowSystem::instance()),
+	handle_(kInvalidHandle),
 	windowFlags_(WindowFlag::kFrameless),
 	isEnabled_(true),
 	hasDisabledParent_(false),
@@ -81,6 +79,7 @@ Widget::Widget(int x, int y, int width, int height, Widget::Handle embedder) :
 	maximumSize_(Limits<int>::max(), Limits<int>::max())
 {
 	setParent(embedder, x, y);
+	isInitialized_ = true;
 }
 
 
@@ -99,8 +98,8 @@ Widget::~Widget()
 			parent_->layout_->remove(this);
 	}
 	else {
-		WINDOW_SYSTEM->destroyWindow(handle_);
-		WINDOW_SYSTEM->sync();
+		ws_->destroyWindow(handle_);
+		ws_->sync();
 	}
 }
 
@@ -127,17 +126,17 @@ void Widget::setWindowFlags(WindowFlags flags)
 void Widget::applyWindowFlags(WindowFlags flags)
 {
 	if(flags & WindowFlag::kNoShadow) {
-		WINDOW_SYSTEM->setWindowFrameless(handle_, true);
+		ws_->setWindowFrameless(handle_, true);
 	}
 	else {
-		WINDOW_SYSTEM->setWindowFrameless(handle_, false);
+		ws_->setWindowFrameless(handle_, false);
 	}
 
 	if(flags & WindowFlag::kSkipTaskbar) {
-		WINDOW_SYSTEM->setWindowTaskbarButton(handle_, true);
+		ws_->setWindowTaskbarButton(handle_, true);
 	}
 	else {
-		WINDOW_SYSTEM->setWindowTaskbarButton(handle_, false);
+		ws_->setWindowTaskbarButton(handle_, false);
 	}
 
 	if(flags & WindowFlag::kNoShadow) {
@@ -304,8 +303,8 @@ void Widget::setVisible(bool visible)
 		}
 
 		if(!parent_) {
-			WINDOW_SYSTEM->setWindowVisible(handle_, visible);
-			WINDOW_SYSTEM->sync();
+			ws_->setWindowVisible(handle_, visible);
+			ws_->sync();
 		}
 		else {
 			repaint();
@@ -432,9 +431,9 @@ void Widget::setGeometry(const Rect<int>& geometry)
 		return;
 
 	if(!parent_) {
-		WINDOW_SYSTEM->moveWindow(handle_, geometry.topLeft());
-		WINDOW_SYSTEM->resizeWindow(handle_, geometry.size());
-		WINDOW_SYSTEM->sync();
+		ws_->moveWindow(handle_, geometry.topLeft());
+		ws_->resizeWindow(handle_, geometry.size());
+		ws_->sync();
 	}
 	else {
 		// Calculate invalidated rectangle
@@ -479,8 +478,8 @@ void Widget::move(const Point<int>& pos)
 		return;
 
 	if(!parent_) {
-		WINDOW_SYSTEM->moveWindow(handle_, pos);
-		WINDOW_SYSTEM->sync();
+		ws_->moveWindow(handle_, pos);
+		ws_->sync();
 	}
 	else {
 		// Calculate invalidated rectangle
@@ -530,8 +529,8 @@ void Widget::resize(const Size<int>& size)
 	int height = bound(minimumSize_.height(), size.height(), maximumSize_.height());
 
 	if(!parent_) {
-		WINDOW_SYSTEM->resizeWindow(handle_, Size<int>(width, height));
-		WINDOW_SYSTEM->sync();
+		ws_->resizeWindow(handle_, Size<int>(width, height));
+		ws_->sync();
 	}
 	else {
 		// Calculate invalidated rectangle
@@ -610,7 +609,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 			layout_->remove(this);
 	}
 	else if(handle_ != kInvalidHandle) {
-		WINDOW_SYSTEM->destroyWindow(handle_);
+		ws_->destroyWindow(handle_);
 		handle_ = kInvalidHandle;
 	}
 
@@ -649,15 +648,15 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 	}
 	else { // Create window for widget without the parent widget
 		next_ = nullptr;
-		handle_ = WINDOW_SYSTEM->createWindow(this, embedder);
+		handle_ = ws_->createWindow(this, embedder);
 		if(handle_ == kInvalidHandle) {
 			LOG("Unable to create native window");
 			return;
 		}
 
 		if(embedder == kInvalidHandle) {
-			WINDOW_SYSTEM->moveWindow(handle_, pos_);
-			WINDOW_SYSTEM->resizeWindow(handle_, size_);
+			ws_->moveWindow(handle_, pos_);
+			ws_->resizeWindow(handle_, size_);
 
 			// Remove the WindowFlag::kFrameless flag
 			WindowFlags flags = ~windowFlags_;
@@ -676,7 +675,7 @@ void Widget::setParent(Widget* newParent, const Point<int>& pos, Handle embedder
 	}
 
 	embedder_ = embedder;
-	WINDOW_SYSTEM->sync();
+	ws_->sync();
 }
 
 
@@ -789,7 +788,7 @@ Point<int> Widget::mapToParent(const Point<int>& point) const
 
 void Widget::update()
 {
-	WINDOW_SYSTEM->enqueueWidgetRepaint(this);
+	ws_->enqueueWidgetRepaint(this);
 }
 
 
@@ -807,8 +806,8 @@ void Widget::repaint()
 		widget = widget->parent_;
 	}
 
-	WINDOW_SYSTEM->repaintWindow(widget->handle_, r);
-	WINDOW_SYSTEM->sync();
+	ws_->repaintWindow(widget->handle_, r);
+	ws_->sync();
 }
 
 
@@ -858,7 +857,7 @@ void Widget::repaintWidget(PaintEvent* event)
 
 void Widget::deleteLater()
 {
-	WINDOW_SYSTEM->enqueueWidgetDeletion(this);
+	ws_->enqueueWidgetDeletion(this);
 }
 
 
@@ -883,8 +882,8 @@ String Widget::windowTitle() const
 void Widget::setWindowTitle(const String& title)
 {
 	if(handle_ != kInvalidHandle) {
-		WINDOW_SYSTEM->setWindowTitle(handle_, title);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowTitle(handle_, title);
+		ws_->sync();
 	}
 
 	title_ = title;
@@ -914,8 +913,8 @@ void Widget::setMinimumSize(const Size<int>& size)
 	minimumSize_ = size;
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -931,8 +930,8 @@ void Widget::setMinimumWidth(int width)
 	minimumSize_.setWidth(width);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -948,8 +947,8 @@ void Widget::setMinimumHeight(int height)
 	minimumSize_.setHeight(height);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -971,8 +970,8 @@ void Widget::setMaximumSize(const Size<int>& size)
 	maximumSize_ = size;
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -988,8 +987,8 @@ void Widget::setMaximumWidth(int width)
 	maximumSize_.setWidth(width);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -1005,8 +1004,8 @@ void Widget::setMaximumHeight(int height)
 	maximumSize_.setHeight(height);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -1023,8 +1022,8 @@ void Widget::setFixedSize(const Size<int>& size)
 	maximumSize_ = size;
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -1035,8 +1034,8 @@ void Widget::setFixedWidth(int width)
 	maximumSize_.setWidth(width);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -1047,8 +1046,8 @@ void Widget::setFixedHeight(int height)
 	maximumSize_.setHeight(height);
 
 	if(!parent_) {
-		WINDOW_SYSTEM->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
-		WINDOW_SYSTEM->sync();
+		ws_->setWindowSizeLimits(handle_, minimumSize_, maximumSize_);
+		ws_->sync();
 	}
 }
 
@@ -1075,7 +1074,7 @@ bool Widget::isProcessingEvents() const
 void Widget::processEvents()
 {
 	isProcessingEvents_ = true;
-	WINDOW_SYSTEM->processEvents();
+	ws_->processEvents();
 }
 
 
@@ -1083,7 +1082,7 @@ void Widget::stopEventProcessing()
 {
 	if(isProcessingEvents_) {
 		isProcessingEvents_ = false;
-		WINDOW_SYSTEM->stopEventProcessing();
+		ws_->stopEventProcessing();
 	}
 }
 

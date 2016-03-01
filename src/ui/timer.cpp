@@ -2,21 +2,20 @@
 
 #include "windowsystem.h"
 
-#define WINDOW_SYSTEM	WindowSystem::instance()
-
 
 namespace Tech {
 
 
 Timer::Timer() :
-	handle_(WINDOW_SYSTEM->createTimer(this))
+	ws_(WindowSystem::instance()),
+	handle_(ws_->createTimer(this))
 {
 }
 
 
 Timer::~Timer()
 {
-	WINDOW_SYSTEM->destroyTimer(handle_);
+	ws_->destroyTimer(handle_);
 }
 
 
@@ -28,25 +27,25 @@ Timer::Handle Timer::handle() const
 
 Duration Timer::interval() const
 {
-	return WINDOW_SYSTEM->timerInterval(handle_);
+	return ws_->timerInterval(handle_);
 }
 
 
 bool Timer::isActive() const
 {
-	return WINDOW_SYSTEM->isTimerActive(handle_);
+	return ws_->isTimerActive(handle_);
 }
 
 
 void Timer::start(Duration timeout, bool periodic)
 {
-	WINDOW_SYSTEM->startTimer(handle_, timeout, periodic);
+	ws_->startTimer(handle_, timeout, periodic);
 }
 
 
 void Timer::stop()
 {
-	WINDOW_SYSTEM->stopTimer(handle_);
+	ws_->stopTimer(handle_);
 }
 
 

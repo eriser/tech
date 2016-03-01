@@ -10,6 +10,7 @@
 namespace Tech {
 
 
+class WindowSystem;
 class WindowSystemPrivate;
 
 
@@ -36,6 +37,10 @@ signals:
 	Signal<void(), PassKey<WindowSystemPrivate>> timeout;
 
 private:
+	// Pointer to window system instance. Timer gets a thread local instance of window
+	// system at creation stage and then it stays "bound" to that thread.
+	WindowSystem* ws_;
+
 	Handle handle_;
 };
 

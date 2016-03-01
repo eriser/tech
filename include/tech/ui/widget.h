@@ -221,6 +221,10 @@ protected:
 	virtual void handleChildSizeHintChange(Widget* child);
 
 private:
+	// Pointer to window system instance. Widget gets a thread local instance of window
+	// system at creation stage and then it stays "bound" to that thread.
+	WindowSystem* ws_;
+
 	// Window handle. Widgets without a parent have an invalid handle (kInvalidHandle).
 	Handle handle_;
 
