@@ -130,9 +130,6 @@ Widget::Handle WindowSystemPrivate::createWindow(Widget* widget, Widget::Handle 
 			static_cast<u16>(widget->width()), static_cast<u16>(widget->height()), 0,
 			XCB_WINDOW_CLASS_INPUT_OUTPUT, screen_->root_visual, mask, values);
 
-	LOG("embedder={0:#X} [{1}]", embedder, isHandleValid(embedder));
-	LOG("handle={0:#X}", handle);
-
 	auto error = xcb_request_check(connection_, c);
 	if(error) {
 		LOG("Unable to create XCB window: {0}", (int) error->error_code);
