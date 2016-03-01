@@ -27,12 +27,23 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set compiler flags
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wextra -Wpedantic")
 	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
 	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wvla")
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wextra -Wpedantic")
+	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
+	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-statement-expression")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla-extension")
 endif()
 
 # Generate platform header --------------------------------------------------------------
