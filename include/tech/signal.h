@@ -97,47 +97,22 @@ public:
 
 	/**
 	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
-	 * аргументов. Данная версия функции присутствует только когда параметром шаблона
-	 * @p R является @c void и отсутствует ключ доступа @p K.
+	 * аргументов. Данная версия функции присутствует только когда Signal инстанцируется
+	 * без указания ключа доступа @p K.
 	 */
-	template<typename T1 = R, typename T2 = K, EnableIf<
-			std::is_void<T1>,
-			std::is_void<T2>>...>
+	template<typename T = K, EnableIf<
+			std::is_void<T>>...>
 	void operator()(A... args) const;
 
 	/**
 	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
-	 * аргументов и возвращает значение, которое вернет последняя из вызванных функций.
-	 * Данная версия функции присутствует только когда параметром шаблона @p R не
-	 * является @c void и отсутствует ключ доступа @p K.
+	 * аргументов. Данная версия функции присутствует только когда Signal инстанцируется
+	 * с указанием ключа доступа @p K.
 	 */
-	template<typename T1 = R, typename T2 = K, EnableIf<
-			Not<std::is_void<T1>>,
-			std::is_void<T2>>...>
-	R operator()(A... args) const;
+	template<typename T = K, EnableIf<
+			Not<std::is_void<T>>>...>
+	void operator()(T key, A... args) const;
 
-	/**
-	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
-	 * аргументов. Данная версия функции присутствует только когда задан ключ доступа
-	 * @p K при инстанцировании шаблона @c Signal и параметром шаблона функции
-	 * @c operator() @p R является @c void.
-	 */
-	template<typename T1 = R, typename T2 = K, EnableIf<
-			std::is_void<T1>,
-			Not<std::is_void<T2>>>...>
-	void operator()(T2 key, A... args) const;
-
-	/**
-	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
-	 * аргументов и возвращает значение, которое вернет последняя из вызванных функций.
-	 * Данная версия функции присутствует только когда задан ключ доступа @p K
-	 * при инстанцировании шаблона @c Signal и параметром шаблона функции @c operator()
-	 * @p R не является @c void.
-	 */
-	template<typename T1 = R, typename T2 = K, EnableIf<
-			Not<std::is_void<T1>>,
-			Not<std::is_void<T2>>>...>
-	R operator()(T2 key, A... args) const;
 
 	/**
 	 * Возвращает @c true, если сигнал подключен хотя бы к одной функции.
@@ -353,9 +328,8 @@ Signal<R(A...), K>& Signal<R(A...), K>::operator=(const Signal<R(A...), K>& othe
 
 
 template<typename R, typename K, typename ...A>
-template<typename T1, typename T2, EnableIf<
-		std::is_void<T1>,
-		std::is_void<T2>>...>
+template<typename T, EnableIf<
+		std::is_void<T>>...>
 void Signal<R(A...), K>::operator()(A... args) const
 {
 	for(auto& slot : slots_)
@@ -364,43 +338,14 @@ void Signal<R(A...), K>::operator()(A... args) const
 
 
 template<typename R, typename K, typename ...A>
-template<typename T1, typename T2, EnableIf<
-		Not<std::is_void<T1>>,
-		std::is_void<T2>>...>
-R Signal<R(A...), K>::operator()(A... args) const
+template<typename T, EnableIf<
+		Not<std::is_void<T>>>...>
+void Signal<R(A...), K>::operator()(T key, A... args) const
 {
-	R result = R();
+	UNUSED(key);
 
-	for(auto& slot : slots_)
-		result = slot.first(args...);
-
-	return result;
-}
-
-
-template<typename R, typename K, typename ...A>
-template<typename T1, typename T2, EnableIf<
-		std::is_void<T1>,
-		Not<std::is_void<T2>>>...>
-void Signal<R(A...), K>::operator()(T2 key, A... args) const
-{
 	for(auto& slot : slots_)
 		slot.first(args...);
-}
-
-
-template<typename R, typename K, typename ...A>
-template<typename T1, typename T2, EnableIf<
-		Not<std::is_void<T1>>,
-		Not<std::is_void<T2>>>...>
-R Signal<R(A...), K>::operator()(T2 key, A... args) const
-{
-	R result = R();
-
-	for(auto& slot : slots_)
-		result = slot.first(args...);
-
-	return result;
 }
 
 
@@ -573,6 +518,8 @@ void Signal<R(A...), K>::destroyEvent(Trackable* trackable)
 template<typename R, typename K, typename ...A>
 void Signal<R(A...), K>::moveEvent(Trackable* old, Trackable* newTrackable)
 {
+	UNUSED(newTrackable);
+
 	for(uint i = 0; i < slots_.size(); ++i) {
 		Trackable* trackable = getTrackable(i);
 		if(trackable == old) {
