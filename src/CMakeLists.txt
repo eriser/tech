@@ -33,7 +33,7 @@ set(SOURCES
     ui/timer.cpp
     ui/widget.cpp
     ui/windowsystem.cpp
-	)
+	ui/palette.cpp)
 
 set(HEADERS
     ../include/tech/bytearray.h
@@ -73,7 +73,7 @@ set(HEADERS
     ../include/tech/ui/size.h
     ../include/tech/ui/timer.h
     ../include/tech/ui/widget.h
-	)
+	../include/tech/ui/palette.h)
 
 # Libraries to link with
 set(LIBRARIES
