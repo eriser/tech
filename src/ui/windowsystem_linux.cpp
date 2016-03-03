@@ -6,7 +6,6 @@
 #include <sys/timerfd.h>
 #include <tech/logger.h>
 #include <xcb/xcb_icccm.h>
-#include <xcb/xcb.h>
 #include <tech/ui/painter.h>
 
 
