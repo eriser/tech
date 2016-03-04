@@ -29,11 +29,13 @@ set(SOURCES
 	ui/image.cpp
     ui/layout.cpp
     ui/painter.cpp
+	ui/palette.cpp
 	ui/rowlayout.cpp
+	ui/style.cpp
     ui/timer.cpp
     ui/widget.cpp
     ui/windowsystem.cpp
-	ui/palette.cpp)
+	)
 
 set(HEADERS
     ../include/tech/bytearray.h
@@ -67,13 +69,15 @@ set(HEADERS
     ../include/tech/ui/layout.h
     ../include/tech/ui/line.h
     ../include/tech/ui/painter.h
+	../include/tech/ui/palette.h
 	../include/tech/ui/point.h
     ../include/tech/ui/rect.h
 	../include/tech/ui/rowlayout.h
     ../include/tech/ui/size.h
+	../include/tech/ui/style.h
     ../include/tech/ui/timer.h
     ../include/tech/ui/widget.h
-	../include/tech/ui/palette.h)
+	)
 
 # Libraries to link with
 set(LIBRARIES

@@ -816,9 +816,6 @@ void Widget::repaint(PaintEvent* event)
 	Painter* painter = event->painter();
 	painter->beginOffscreenPaint();
 
-	painter->setSource(Color::kWhite);
-	painter->paint();
-
 	repaintWidget(event);
 
 	painter->applyOffscreenPaint();
@@ -833,8 +830,13 @@ void Widget::repaintWidget(PaintEvent* event)
 	if(parent_)
 		painter->translate(pos().x(), pos().y());
 
-	painter->rectangle(rect());
+	painter->rectangle(event->rect());
 	painter->clip();
+
+	if(!parent_) {
+		painter->setSource(Color::kWhite);
+		painter->paint();
+	}
 
 	PaintEvent e(*event);
 	dispatchEvent(&e);
