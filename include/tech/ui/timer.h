@@ -33,7 +33,6 @@ public:
 	void start(Duration timeout, bool periodic = false);
 	void stop();
 
-signals:
 	Signal<void(), PassKey<WindowSystemPrivate>> timeout;
 
 private:

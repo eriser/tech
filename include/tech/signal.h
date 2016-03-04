@@ -4,11 +4,6 @@
 #include <vector>
 #include <tech/delegate.h>
 
-#ifdef signals
-#undef signals
-#endif
-#define signals public
-
 
 namespace Tech {
 

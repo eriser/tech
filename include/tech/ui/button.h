@@ -11,7 +11,6 @@ class Button : public Widget {
 public:
 	Button(const String& text, Widget* parent = nullptr);
 
-signals:
 	Signal<void(), PassKey<Button>> clicked;
 
 protected:
