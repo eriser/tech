@@ -149,7 +149,7 @@ constexpr bool Flags<T>::operator!=(T flag) const
 template<typename T>
 constexpr Flags<T> Flags<T>::operator&(Flags<T> mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result &= mask;
 	return result;
 }
@@ -158,7 +158,7 @@ constexpr Flags<T> Flags<T>::operator&(Flags<T> mask) const
 template<typename T>
 constexpr Flags<T> Flags<T>::operator&(T mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result &= mask;
 	return result;
 }
@@ -183,7 +183,7 @@ Flags<T>& Flags<T>::operator&=(T mask)
 template<typename T>
 constexpr Flags<T> Flags<T>::operator|(Flags<T> mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result |= mask;
 	return result;
 }
@@ -192,7 +192,7 @@ constexpr Flags<T> Flags<T>::operator|(Flags<T> mask) const
 template<typename T>
 constexpr Flags<T> Flags<T>::operator|(T mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result |= mask;
 	return result;
 }
@@ -217,7 +217,7 @@ Flags<T>& Flags<T>::operator|=(T mask)
 template<typename T>
 constexpr Flags<T> Flags<T>::operator^(Flags<T> mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result ^= mask;
 	return result;
 }
@@ -226,7 +226,7 @@ constexpr Flags<T> Flags<T>::operator^(Flags<T> mask) const
 template<typename T>
 constexpr Flags<T> Flags<T>::operator^(T mask) const
 {
-	Flags<T> result;
+	Flags<T> result = *this;
 	result ^= mask;
 	return result;
 }
