@@ -7,6 +7,7 @@ project(${PROJECT_NAME})
 # Options -------------------------------------------------------------------------------
 option(TECH_GENERATE_DOCS  "Enable documentation generation"       ON)
 option(TECH_ENABLE_TESTS   "Enable automatic unit testing"         ON)
+option(TECH_ENABLE_UI      "Enable the UI subsystem"               ON)
 
 # Set CMake modules path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)

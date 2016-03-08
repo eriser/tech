@@ -2,14 +2,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TARGET ${PROJECT_NAME})
 
-find_package(Cairo REQUIRED)
-find_package(Pango REQUIRED)
-
-include_directories(
-	${CAIRO_INCLUDE_DIRS}
-	${PANGO_INCLUDE_DIRS}
-)
-
 # Common sources
 set(SOURCES
     bytearray.cpp
@@ -21,86 +13,109 @@ set(SOURCES
     string.cpp
     thread.cpp
     timezone.cpp
-    ui/button.cpp
-    ui/color.cpp
-    ui/font.cpp
-    ui/fontmetrics.cpp
-	ui/gradient.cpp
-	ui/image.cpp
-    ui/layout.cpp
-    ui/painter.cpp
-	ui/palette.cpp
-	ui/rowlayout.cpp
-	ui/style.cpp
-    ui/timer.cpp
-    ui/widget.cpp
-    ui/windowsystem.cpp
 	)
 
 set(HEADERS
-    ../include/tech/bytearray.h
-    ../include/tech/calendartime.h
-    ../include/tech/char.h
-    ../include/tech/delegate.h
-    ../include/tech/duration.h
-    ../include/tech/flags.h
-    ../include/tech/format.h
-    ../include/tech/logger.h
-    ../include/tech/passkey.h
-    ../include/tech/pimpl.h
-    ../include/tech/scopeexit.h
-    ../include/tech/semaphore.h
-    ../include/tech/signal.h
-    ../include/tech/string.h
-    ../include/tech/thread.h
-    ../include/tech/timecounter.h
-    ../include/tech/timezone.h
-    ../include/tech/traits.h
-    ../include/tech/types.h
-    ../include/tech/utils.h
-    ../include/tech/ui/button.h
-    ../include/tech/ui/color.h
-    ../include/tech/ui/events.h
-    ../include/tech/ui/font.h
-    ../include/tech/ui/fontmetrics.h
-	../include/tech/ui/gradient.h
-	../include/tech/ui/image.h
-    ../include/tech/ui/keys.h
-    ../include/tech/ui/layout.h
-    ../include/tech/ui/line.h
-    ../include/tech/ui/painter.h
-	../include/tech/ui/palette.h
-	../include/tech/ui/point.h
-    ../include/tech/ui/rect.h
-	../include/tech/ui/rowlayout.h
-    ../include/tech/ui/size.h
-	../include/tech/ui/style.h
-    ../include/tech/ui/timer.h
-    ../include/tech/ui/widget.h
+	../include/tech/bytearray.h
+	../include/tech/calendartime.h
+	../include/tech/char.h
+	../include/tech/delegate.h
+	../include/tech/duration.h
+	../include/tech/flags.h
+	../include/tech/format.h
+	../include/tech/logger.h
+	../include/tech/passkey.h
+	../include/tech/pimpl.h
+	../include/tech/scopeexit.h
+	../include/tech/semaphore.h
+	../include/tech/signal.h
+	../include/tech/string.h
+	../include/tech/thread.h
+	../include/tech/timecounter.h
+	../include/tech/timezone.h
+	../include/tech/traits.h
+	../include/tech/types.h
+	../include/tech/utils.h
 	)
 
-# Libraries to link with
-set(LIBRARIES
-	${CAIRO_LIBRARIES}
-	${PANGO_LIBRARIES}
-)
+if(TECH_ENABLE_UI)
+	find_package(Cairo REQUIRED)
+	find_package(Pango REQUIRED)
 
-if(PLATFORM_LINUX)
-	find_package(Xcb COMPONENTS XCB ICCCM REQUIRED)
 	include_directories(
-		${XCB_XCB_INCLUDE_DIR}
-		${XCB_ICCCM_INCLUDE_DIR}
-		)
+		${CAIRO_INCLUDE_DIRS}
+		${PANGO_INCLUDE_DIRS}
+	)
 
 	list(APPEND SOURCES
-		 timezone_linux.cpp
-		 ui/windowsystem_linux.cpp
+		ui/button.cpp
+	    ui/color.cpp
+	    ui/font.cpp
+	    ui/fontmetrics.cpp
+		ui/gradient.cpp
+		ui/image.cpp
+	    ui/layout.cpp
+	    ui/painter.cpp
+		ui/palette.cpp
+		ui/rowlayout.cpp
+		ui/style.cpp
+	    ui/timer.cpp
+	    ui/widget.cpp
+	    ui/windowsystem.cpp
+	)
+
+	list(APPEND HEADERS
+		../include/tech/ui/button.h
+		../include/tech/ui/color.h
+		../include/tech/ui/events.h
+		../include/tech/ui/font.h
+		../include/tech/ui/fontmetrics.h
+		../include/tech/ui/gradient.h
+		../include/tech/ui/image.h
+		../include/tech/ui/keys.h
+		../include/tech/ui/layout.h
+		../include/tech/ui/line.h
+		../include/tech/ui/painter.h
+		../include/tech/ui/palette.h
+		../include/tech/ui/point.h
+		../include/tech/ui/rect.h
+		../include/tech/ui/rowlayout.h
+		../include/tech/ui/size.h
+		../include/tech/ui/style.h
+		../include/tech/ui/timer.h
+		../include/tech/ui/widget.h
+	)
+
+	# Libraries to link with
+	set(LIBRARIES
+		${CAIRO_LIBRARIES}
+		${PANGO_LIBRARIES}
+	)
+endif()
+
+
+if(PLATFORM_LINUX)
+	list(APPEND SOURCES
+		timezone_linux.cpp
 		)
 
-	list(APPEND LIBRARIES
-		 ${XCB_XCB_LIBRARY}
-		 ${XCB_ICCCM_LIBRARY}
-		 )
+	if(TECH_ENABLE_UI)
+		find_package(Xcb COMPONENTS XCB ICCCM REQUIRED)
+
+		include_directories(
+			${XCB_XCB_INCLUDE_DIR}
+			${XCB_ICCCM_INCLUDE_DIR}
+		)
+
+		list(APPEND SOURCES
+			ui/windowsystem_linux.cpp
+		)
+
+		list(APPEND LIBRARIES
+			${XCB_XCB_LIBRARY}
+			${XCB_ICCCM_LIBRARY}
+		)
+	endif()
 elseif(PLATFORM_WINDOWS)
 	list(APPEND SOURCES
 		 timezone_windows.cpp
