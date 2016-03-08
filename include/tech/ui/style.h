@@ -25,7 +25,7 @@ public:
 	virtual ~Style() = default;
 
 	virtual void drawElement(const StyleOptions* options, Painter* painter,
-			const Widget* widget = nullptr) = 0;
+			const Widget* widget = nullptr);
 
 protected:
 

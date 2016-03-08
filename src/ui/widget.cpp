@@ -3,6 +3,7 @@
 #include <tech/logger.h>
 #include <tech/ui/layout.h>
 #include <tech/ui/painter.h>
+#include <tech/ui/style.h>
 #include "windowsystem.h"
 
 
@@ -10,6 +11,9 @@ namespace Tech {
 
 
 using namespace Literals;
+
+
+Box<Style> Widget::style_;
 
 
 Widget::Widget(Widget* parent, WindowFlags flags) :
@@ -1086,6 +1090,18 @@ void Widget::stopEventProcessing()
 		isProcessingEvents_ = false;
 		ws_->stopEventProcessing();
 	}
+}
+
+
+Style* Widget::style()
+{
+	return style_.get();
+}
+
+
+void Widget::setStyle(Box<Style> style)
+{
+	style_ = std::move(style);
 }
 
 

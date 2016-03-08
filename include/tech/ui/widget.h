@@ -25,6 +25,7 @@ class PaintEvent;
 class MouseEvent;
 class MouseWheelEvent;
 class Painter;
+class Style;
 class WindowSystem;
 class WindowSystemPrivate;
 
@@ -176,6 +177,9 @@ public:
 	void processEvents();
 	void stopEventProcessing();
 
+	static Style* style();
+	static void setStyle(Box<Style> style);
+
 restricted:
 	void processEvent(Event* event, PassKey<Widget, WindowSystemPrivate>);
 
@@ -310,6 +314,8 @@ private:
 	Size<int> maximumSize_;
 
 	Box<Layout> layout_;
+
+	static Box<Style> style_;
 
 	void setParent(Widget* newParent, const Point<int>& pos, Handle embedder);
 
