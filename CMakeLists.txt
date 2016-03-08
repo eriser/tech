@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 # Project name
-set(PROJECT_NAME tech)
+set(PROJECT_NAME tech CACHE INTERNAL "")
 project(${PROJECT_NAME})
-
 # Options -------------------------------------------------------------------------------
 option(TECH_GENERATE_DOCS  "Enable documentation generation"       ON)
 option(TECH_ENABLE_TESTS   "Enable automatic unit testing"         ON)
