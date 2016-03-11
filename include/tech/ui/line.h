@@ -62,7 +62,7 @@ public:
 	bool isHorizontal() const;
 	bool isVertical() const;
 	bool contains(const Point<T>& point, double tolerance = 0.0001) const;
-	bool intersects(const Line<T>& line, Point<T>* intersection) const;
+	bool intersects(const Line<T>& line, Point<T>* intersection = nullptr) const;
 
 	T distanceTo(Point<T>& point) const;
 
