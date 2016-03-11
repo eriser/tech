@@ -62,6 +62,7 @@ public:
 	bool isHorizontal() const;
 	bool isVertical() const;
 	bool contains(const Point<T>& point, double tolerance = 0.0001) const;
+	bool intersects(const Line<T>& line, Point<T>* intersection) const;
 
 	T distanceTo(Point<T>& point) const;
 
@@ -297,6 +298,55 @@ bool Line<T>::contains(const Point<T>& point, double tolerance) const
 	double b = begin_.y() - a * begin_.x();
 
 	return std::abs(point.y() - (a * point.x() + b)) < tolerance;
+}
+
+
+template<typename T>
+bool Line<T>::intersects(const Line<T>& line, Point<T>* intersection) const
+{
+	// Original intersection code was taken from http://stackoverflow.com/a/35457290
+
+	T x0 = begin_.x();
+	T y0 = begin_.y();
+	T x1 = end_.x();
+	T y1 = end_.y();
+	T x2 = line.begin().x();
+	T y2 = line.begin().y();
+	T x3 = line.end().x();
+	T y3 = line.end().y();
+
+	T sx10 = x1 - x0;
+	T sy10 = y1 - y0;
+	T sx32 = x3 - x2;
+	T sy32 = y3 - y2;
+
+	T denom = sx10 * sy32 - sx32 * sy10;
+	if(denom == 0)
+		return 0; // lines are collinear
+
+	bool denomPositive = denom > 0;
+
+	T sx02 = x0 - x2;
+	T sy02 = y0 - y2;
+	T s_numer = sx10 * sy02 - sy10 * sx02;
+	if((s_numer < 0) == denomPositive)
+		return false;
+
+	T t_numer = sx32 * sy02 - sy32 * sx02;
+	if((t_numer < 0) == denomPositive)
+		return false;
+
+	if(((s_numer > denom) == denomPositive) || ((t_numer > denom) == denomPositive))
+		return false;
+
+	T t = t_numer / denom;
+
+	if(intersection) {
+		intersection->setX(x0 + (t * sx10));
+		intersection->setY(y0 + (t * sy10));
+	}
+
+	return true;
 }
 
 
