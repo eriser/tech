@@ -250,6 +250,18 @@ String formatValue(bool value, const String& spec)
 }
 
 
+String formatValue(i16 value, const String& spec)
+{
+	return formatValue(static_cast<i32>(value), spec);
+}
+
+
+String formatValue(u16 value, const String& spec)
+{
+	return formatValue(static_cast<u32>(value), spec);
+}
+
+
 String formatValue(i32 value, const String& spec)
 {
 	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
