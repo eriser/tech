@@ -76,7 +76,7 @@ T calculateCrc(const void* data, size_t length, const T* table, T initialValue)
 {
 	static_assert(IsInteger<T>::value, "");
 
-	const u8 *buffer = static_cast<const u8*>(data);
+	const u8* buffer = static_cast<const u8*>(data);
 	T result = initialValue;
 	int bitSize = Limits<T>::bitCount();
 
