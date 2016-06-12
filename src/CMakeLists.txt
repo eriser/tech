@@ -8,6 +8,7 @@ set(SOURCES
     char.cpp
     duration.cpp
     format.cpp
+	item.cpp
     logger.cpp
     string.cpp
     thread.cpp
@@ -21,6 +22,7 @@ set(HEADERS
 	../include/tech/duration.h
 	../include/tech/flags.h
 	../include/tech/format.h
+	../include/tech/item.h
 	../include/tech/logger.h
 	../include/tech/passkey.h
 	../include/tech/pimpl.h
@@ -159,12 +161,12 @@ elseif(PLATFORM_WINDOWS)
 	list(APPEND SOURCES
 		system/timezone_windows.cpp
 		ui/windowsystem_windows.cpp
-		 )
+	)
 elseif(PLATFORM_OSX)
     list(APPEND SOURCES
 		system/timezone_osx.cpp
 		ui/windowsystem_osx.cpp
-		 )
+	)
 endif()
 
 
