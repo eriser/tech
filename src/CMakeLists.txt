@@ -36,6 +36,17 @@ set(HEADERS
 	../include/tech/utils.h
 	)
 
+if(TECH_ENABLE_HASH)
+	list(APPEND SOURCES
+		hash/crc.cpp
+		)
+
+	list(APPEND HEADERS
+		../include/tech/hash/crc.h
+		)
+endif()
+
+
 if(TECH_ENABLE_SYSTEM)
 	list(APPEND SOURCES
 		system/calendartime.cpp
