@@ -9,6 +9,7 @@ set(SOURCES
     duration.cpp
     format.cpp
 	item.cpp
+	itemcodec.cpp
     logger.cpp
     string.cpp
     thread.cpp
@@ -23,6 +24,7 @@ set(HEADERS
 	../include/tech/flags.h
 	../include/tech/format.h
 	../include/tech/item.h
+	../include/tech/itemcodec.h
 	../include/tech/logger.h
 	../include/tech/passkey.h
 	../include/tech/pimpl.h
