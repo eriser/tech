@@ -1,6 +1,7 @@
 #include <tech/calendartime.h>
 
 #include <algorithm>
+#include <numeric>
 #include <tech/utils.h>
 
 
