@@ -36,7 +36,6 @@ Item::Item(i16 value) :
 	type_(ItemType::kInteger),
 	tag_(0)
 {
-
 }
 
 
@@ -178,10 +177,10 @@ Item& Item::operator=(const Item& other)
 
 bool Item::operator<(const Item& other) const
 {
-	if(type_ < other.type_) {
+	if(type_ < other.type_ || tag_ < other.tag_) {
 		return true;
 	}
-	else if(type_ > other.type_) {
+	else if(type_ > other.type_ || tag_ > other.tag_) {
 		return false;
 	}
 
@@ -220,10 +219,10 @@ bool Item::operator<(const Item& other) const
 
 bool Item::operator<=(const Item& other) const
 {
-	if(type_ < other.type_) {
+	if(type_ < other.type_ || tag_ < other.tag_) {
 		return true;
 	}
-	else if(type_ > other.type_) {
+	else if(type_ > other.type_ || tag_ > other.tag_) {
 		return false;
 	}
 
@@ -262,10 +261,10 @@ bool Item::operator<=(const Item& other) const
 
 bool Item::operator>=(const Item& other) const
 {
-	if(type_ < other.type_) {
+	if(type_ < other.type_ || tag_ < other.tag_) {
 		return false;
 	}
-	else if(type_ > other.type_) {
+	else if(type_ > other.type_ || tag_ > other.tag_) {
 		return true;
 	}
 
@@ -304,10 +303,10 @@ bool Item::operator>=(const Item& other) const
 
 bool Item::operator>(const Item& other) const
 {
-	if(type_ < other.type_) {
+	if(type_ < other.type_ || tag_ < other.tag_) {
 		return false;
 	}
-	else if(type_ > other.type_) {
+	else if(type_ > other.type_ || tag_ > other.tag_) {
 		return true;
 	}
 
@@ -346,7 +345,7 @@ bool Item::operator>(const Item& other) const
 
 bool Item::operator==(const Item& other) const
 {
-	if(type_ != other.type_)
+	if(type_ != other.type_ || tag_ != other.tag_)
 		return false;
 
 	switch(type_) {
