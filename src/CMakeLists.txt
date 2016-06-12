@@ -19,6 +19,7 @@ set(HEADERS
 	../include/tech/bytearray.h
 	../include/tech/calendartime.h
 	../include/tech/char.h
+	../include/tech/circbuffer.h
 	../include/tech/delegate.h
 	../include/tech/duration.h
 	../include/tech/flags.h
@@ -26,6 +27,7 @@ set(HEADERS
 	../include/tech/logger.h
 	../include/tech/passkey.h
 	../include/tech/pimpl.h
+	../include/tech/scopedrollback.h
 	../include/tech/scopeexit.h
 	../include/tech/semaphore.h
 	../include/tech/signal.h
