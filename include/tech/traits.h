@@ -4,6 +4,7 @@
 #include <climits>
 #include <limits>
 #include <type_traits>
+#include <tuple>
 
 
 namespace internal {
