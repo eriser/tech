@@ -2,6 +2,8 @@
 #define TECH_UTILS_H
 
 #include <algorithm>
+#include <cstdlib>
+#include <iostream>
 #include <tech/platform.h>
 #include <tech/traits.h>
 #include <tech/types.h>
@@ -14,6 +16,18 @@
 		static const int index = Tech::basenameIndex(__FILE__); \
 		static_assert(index >= 0, "compile-time basename");     \
         __FILE__ + index; })
+
+#if defined(DEBUG)
+#define ASSERT(expression, message) \
+		do { \
+			if(!(expression)) { \
+				std::cerr << __FILENAME__ << ':' << __LINE__ << message << std::endl; \
+				std::abort(); \
+			} \
+		} while(0)
+#else
+#define ASSERT(expression, message)
+#endif
 
 
 namespace Tech {
