@@ -23,10 +23,12 @@ option(TECH_ENABLE_UI      "Enable 'UI' module (requires system)"      OFF)
 
 if(TECH_ENABLE_SOCKETS AND NOT TECH_ENABLE_SYSTEM)
 	message(WARNING "Enabling the 'system' module as a dependency for the 'sockets'")
+	set(TECH_ENABLE_SYSTEM ON)
 endif()
 
 if(TECH_ENABLE_UI AND NOT TECH_ENABLE_SYSTEM)
 	message(WARNING "Enabling the 'system' module as a dependency for the 'ui'")
+	set(TECH_ENABLE_SYSTEM ON)
 endif()
 
 message(STATUS "${PROJECT_NAME} modules summary:")
