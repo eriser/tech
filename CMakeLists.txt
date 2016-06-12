@@ -1,14 +1,40 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-# Project name
+# Set a default build type if none was specified ----------------------------------------
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified")
+	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build" FORCE)
+
+	# Set the possible values of build type for cmake-gui
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel"
+		"RelWithDebInfo")
+endif()
+
+# Project name --------------------------------------------------------------------------
 set(PROJECT_NAME tech CACHE INTERNAL "")
 project(${PROJECT_NAME})
-# Options -------------------------------------------------------------------------------
-option(TECH_GENERATE_DOCS  "Enable documentation generation"       ON)
-option(TECH_ENABLE_TESTS   "Enable automatic unit testing"         ON)
-option(TECH_ENABLE_UI      "Enable the UI subsystem"               ON)
 
-# Set CMake modules path
+# Options -------------------------------------------------------------------------------
+option(TECH_GENERATE_DOCS  "Enable documentation generation"           ON)
+option(TECH_ENABLE_TESTS   "Enable automatic unit testing"             ON)
+option(TECH_ENABLE_SYSTEM  "Enable 'system' module"                    OFF)
+option(TECH_ENABLE_SOCKETS "Enable 'sockets' module (requires system)" OFF)
+option(TECH_ENABLE_UI      "Enable 'UI' module (requires system)"      OFF)
+
+if(TECH_ENABLE_SOCKETS AND NOT TECH_ENABLE_SYSTEM)
+	message(WARNING "Enabling the 'system' module as a dependency for the 'sockets'")
+endif()
+
+if(TECH_ENABLE_UI AND NOT TECH_ENABLE_SYSTEM)
+	message(WARNING "Enabling the 'system' module as a dependency for the 'ui'")
+endif()
+
+message(STATUS "${PROJECT_NAME} modules summary:")
+message(STATUS "system  : ${TECH_ENABLE_SYSTEM}")
+message(STATUS "sockets : ${TECH_ENABLE_SOCKETS}")
+message(STATUS "ui      : ${TECH_ENABLE_UI}")
+
+# Set CMake modules path ----------------------------------------------------------------
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 # Set include directories ---------------------------------------------------------------
@@ -20,15 +46,11 @@ set(TECH_INCLUDE_DIRS
 
 include_directories(SYSTEM ${TECH_INCLUDE_DIRS})
 
-# Warn user if the build type is not set
-if(NOT CMAKE_BUILD_TYPE)
-   set(CMAKE_BUILD_TYPE RelWithDebInfo)
-   message(WARNING "CMAKE_BUILD_TYPE is not set, forcing to RelWithDebInfo")
-endif()
+# Set compiler flags --------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD "14")
 
-# Set compiler flags
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wextra -Wpedantic")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
 	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
@@ -36,7 +58,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla")
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wextra -Wpedantic --stdlib=libstdc++")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic --stdlib=libstdc++")
 	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g3")
