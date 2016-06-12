@@ -22,8 +22,6 @@ public:
 	Timer();
 	Timer(const Timer& other) = delete;
 
-	~Timer() override;
-
 	Timer& operator=(const Timer& other) = delete;
 
 	Handle handle() const;
