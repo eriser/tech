@@ -38,6 +38,19 @@ set(HEADERS
 	../include/tech/utils.h
 	)
 
+if(TECH_ENABLE_SYSTEM)
+	list(APPEND SOURCES
+		system/dispatcher.cpp
+		system/timer.cpp
+	)
+
+	list(APPEND HEADERS
+		../include/tech/system/dispatcher.h
+		../include/tech/system/timer.h
+	)
+endif()
+
+
 if(TECH_ENABLE_UI)
 	find_package(Cairo REQUIRED)
 	find_package(Pango REQUIRED)
@@ -98,6 +111,18 @@ if(PLATFORM_LINUX)
 	list(APPEND SOURCES
 		timezone_linux.cpp
 		)
+
+	if(TECH_ENABLE_SYSTEM)
+		list(APPEND SOURCES
+			system/dispatcher_linux.cpp
+			system/timer_linux.cpp
+			)
+
+		list(APPEND HEADERS
+			system/dispatcher_linux.h
+			system/timer_linux.h
+			)
+	endif()
 
 	if(TECH_ENABLE_UI)
 		find_package(Xcb COMPONENTS XCB ICCCM REQUIRED)
