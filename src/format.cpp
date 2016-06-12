@@ -610,15 +610,15 @@ String formatValue(float value, const String& spec)
 		prefix += '-';
 	}
 
-	String string = Formatter::floatToString(std::abs(value), flags);
+/*	String string = Formatter::floatToString(std::abs(value), flags);
 	size_t totalLength = string.length() + prefix.length();
 	int fillCount = flags.minimumWidth - totalLength;
 	if(fillCount <= 0)
 		return prefix + string;
-
+*/
 	String result(flags.minimumWidth, flags.fill);
 
-	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+/*	if(flags.alignment == Formatter::Flags::kAlignLeft) {
 		result.replace(0, prefix.length(), prefix);
 		result.replace(prefix.length(), string.length(), string);
 	}
@@ -634,7 +634,7 @@ String formatValue(float value, const String& spec)
 	else if(flags.alignment == Formatter::Flags::kAlignSignAware) {
 		result.replace(0, prefix.length(), prefix);
 		result.replace(fillCount + prefix.length(), string.length(), string);
-	}
+	}*/
 
 	return result;
 }
@@ -669,15 +669,15 @@ String formatValue(double value, const String& spec)
 		prefix += '-';
 	}
 
-	String string = Formatter::doubleToString(std::abs(value), flags);
+/*	String string = Formatter::doubleToString(std::abs(value), flags);
 	size_t totalLength = string.length() + prefix.length();
 	int fillCount = flags.minimumWidth - totalLength;
 	if(fillCount <= 0)
 		return prefix + string;
-
+*/
 	String result(flags.minimumWidth, flags.fill);
 
-	if(flags.alignment == Formatter::Flags::kAlignLeft) {
+/*	if(flags.alignment == Formatter::Flags::kAlignLeft) {
 		result.replace(0, prefix.length(), prefix);
 		result.replace(prefix.length(), string.length(), string);
 	}
@@ -694,7 +694,7 @@ String formatValue(double value, const String& spec)
 		result.replace(0, prefix.length(), prefix);
 		result.replace(fillCount + prefix.length(), string.length(), string);
 	}
-
+*/
 	return result;
 }
 
