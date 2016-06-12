@@ -1,7 +1,7 @@
-#ifndef TECH_TIMEZONE_WINDOWS_H
-#define TECH_TIMEZONE_WINDOWS_H
+#ifndef TECH_SYSTEM_TIMEZONE_WINDOWS_H
+#define TECH_SYSTEM_TIMEZONE_WINDOWS_H
 
-#include <tech/timezone.h>
+#include <tech/system/timezone.h>
 
 
 namespace Tech {
@@ -27,4 +27,4 @@ private:
 } // namespace Tech
 
 
-#endif // TECH_TIMEZONE_WINDOWS_H
+#endif // TECH_SYSTEM_TIMEZONE_WINDOWS_H

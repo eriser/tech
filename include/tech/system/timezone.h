@@ -1,5 +1,5 @@
-#ifndef TECH_TIMEZONE_H
-#define TECH_TIMEZONE_H
+#ifndef TECH_SYSTEM_TIMEZONE_H
+#define TECH_SYSTEM_TIMEZONE_H
 
 #include <map>
 #include <tech/bytearray.h>
@@ -36,4 +36,4 @@ private:
 } // namespace Tech
 
 
-#endif // TECH_TIMEZONE_H
+#endif // TECH_SYSTEM_TIMEZONE_H

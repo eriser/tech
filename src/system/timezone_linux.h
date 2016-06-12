@@ -1,8 +1,8 @@
-#ifndef TECH_TIMEZONE_LINUX_H
-#define TECH_TIMEZONE_LINUX_H
+#ifndef TECH_SYSTEM_TIMEZONE_LINUX_H
+#define TECH_SYSTEM_TIMEZONE_LINUX_H
 
 #include <vector>
-#include <tech/timezone.h>
+#include <tech/system/timezone.h>
 
 
 namespace Tech {
@@ -59,4 +59,4 @@ private:
 } // namespace Tech
 
 
-#endif // TECH_TIMEZONE_LINUX_H
+#endif // TECH_SYSTEM_TIMEZONE_LINUX_H

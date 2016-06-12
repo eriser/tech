@@ -5,19 +5,16 @@ set(TARGET ${PROJECT_NAME})
 # Common sources
 set(SOURCES
     bytearray.cpp
-    calendartime.cpp
     char.cpp
     duration.cpp
     format.cpp
     logger.cpp
     string.cpp
     thread.cpp
-    timezone.cpp
 	)
 
 set(HEADERS
 	../include/tech/bytearray.h
-	../include/tech/calendartime.h
 	../include/tech/char.h
 	../include/tech/circbuffer.h
 	../include/tech/delegate.h
@@ -34,7 +31,6 @@ set(HEADERS
 	../include/tech/string.h
 	../include/tech/thread.h
 	../include/tech/timecounter.h
-	../include/tech/timezone.h
 	../include/tech/traits.h
 	../include/tech/types.h
 	../include/tech/utils.h
@@ -42,13 +38,17 @@ set(HEADERS
 
 if(TECH_ENABLE_SYSTEM)
 	list(APPEND SOURCES
+		system/calendartime.cpp
 		system/dispatcher.cpp
 		system/timer.cpp
+		system/timezone.cpp
 	)
 
 	list(APPEND HEADERS
+		../include/tech/system/calendartime.h
 		../include/tech/system/dispatcher.h
 		../include/tech/system/timer.h
+		../include/tech/system/timezone.h
 	)
 endif()
 
@@ -111,18 +111,19 @@ endif()
 
 if(PLATFORM_LINUX)
 	list(APPEND SOURCES
-		timezone_linux.cpp
 		)
 
 	if(TECH_ENABLE_SYSTEM)
 		list(APPEND SOURCES
 			system/dispatcher_linux.cpp
 			system/timer_linux.cpp
+			system/timezone_linux.cpp
 			)
 
 		list(APPEND HEADERS
 			system/dispatcher_linux.h
 			system/timer_linux.h
+			system/timezone_linux.h
 			)
 	endif()
 
@@ -145,13 +146,13 @@ if(PLATFORM_LINUX)
 	endif()
 elseif(PLATFORM_WINDOWS)
 	list(APPEND SOURCES
-		 timezone_windows.cpp
-		 ui/windowsystem_windows.cpp
+		system/timezone_windows.cpp
+		ui/windowsystem_windows.cpp
 		 )
 elseif(PLATFORM_OSX)
     list(APPEND SOURCES
-		 timezone_osx.cpp
-		 ui/windowsystem_osx.cpp
+		system/timezone_osx.cpp
+		ui/windowsystem_osx.cpp
 		 )
 endif()
 
