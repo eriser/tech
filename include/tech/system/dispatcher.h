@@ -31,8 +31,8 @@ public:
 	Dispatcher(const Dispatcher&) = delete;
 	Dispatcher& operator=(const Dispatcher&) = delete;
 
-	bool hasPendingEvents() const;
-	void processPendingEvents(int msecs = 0);
+	void processEvents();
+	void stopProcessing();
 
 	bool isHandlerRegistered(int fd) const;
 	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);

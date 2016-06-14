@@ -20,15 +20,15 @@ Dispatcher* Dispatcher::instance()
 }
 
 
-bool Dispatcher::hasPendingEvents() const
+void Dispatcher::processEvents()
 {
-	return impl()->hasPendingEvents();
+	impl()->processEvents();
 }
 
 
-void Dispatcher::processPendingEvents(int msecs)
+void Dispatcher::stopProcessing()
 {
-	impl()->processPendingEvents(msecs);
+	impl()->stopProcessing();
 }
 
 

@@ -13,15 +13,20 @@ public:
 	DispatcherImpl();
 	~DispatcherImpl();
 
-	bool hasPendingEvents() const;
-	void processPendingEvents(int msecs);
+	void processEvents();
+	void stopProcessing();
 
 	bool isHandlerRegistered(int fd) const;
 	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
 	bool unregisterHandler(int fd);
 
 private:
+	enum class Command {
+		kStopProcessing
+	};
+
 	int epfd_;
+	int pipeFds_[2];
 	std::map<int, EventHandler> handlersByFd_;
 };
 

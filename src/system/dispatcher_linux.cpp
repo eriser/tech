@@ -10,55 +10,90 @@ namespace Tech {
 
 
 DispatcherImpl::DispatcherImpl() :
-	epfd_(epoll_create(!0))
+	epfd_(epoll_create(1))
 {
-	if(epfd_ == -1)
+	if(epfd_ == -1) {
 		LOG("epoll_create call failed: {}", ::strerror(errno));
+		return;
+	}
+
+	pipe(pipeFds_);
+
+	int flags = fcntl(pipeFds_[0], F_GETFL, 0);
+	fcntl(pipeFds_[1], F_SETFL, flags | O_NONBLOCK);
+
+	epoll_event ev;
+	ev.data.fd = pipeFds_[0];
+	ev.events = EPOLLIN;
+	if(epoll_ctl(epfd_, EPOLL_CTL_ADD, pipeFds_[0], &ev) == -1 && errno != EEXIST) {
+		LOG("epoll_ctl call failed: {}", ::strerror(errno));
+		close(epfd_);
+		epfd_ = -1;
+	}
 }
 
 
 DispatcherImpl::~DispatcherImpl()
 {
-	close(epfd_);
+	if(epfd_ != -1) {
+		close(epfd_);
+		close(pipeFds_[0]);
+		close(pipeFds_[1]);
+	}
 }
 
 
-bool DispatcherImpl::hasPendingEvents() const
+void DispatcherImpl::processEvents()
 {
-	// FIXME
-	return false;
+	const int kEventCount = 16;
+	epoll_event events[kEventCount];
+	bool running = true;
+
+	while(running) {
+		int count = epoll_wait(epfd_, events, kEventCount, -1);
+		if(count == -1) {
+			LOG("epoll_wait call failed: {}", ::strerror(errno));
+			return;
+		}
+
+		for(int i = 0; i < count; ++i) {
+			int fd = events[i].data.fd;
+			auto it = handlersByFd_.find(fd);
+			u32 eventMask = events[i].events;
+
+			if(fd == pipeFds_[0]) {
+				Command command;
+				read(fd, &command, sizeof(command));
+
+				if(command == Command::kStopProcessing) {
+					running = false;
+				}
+
+				continue;
+			}
+
+			// An event handler can unregister itself, thus we need to check its validity
+			// every time wi use it
+			if((eventMask & EPOLLIN) && isHandlerRegistered(fd))
+				it->second(fd, EventType::kRead);
+
+			if((eventMask & EPOLLOUT) && isHandlerRegistered(fd))
+				it->second(fd, EventType::kWrite);
+
+			if((eventMask & EPOLLRDHUP) && isHandlerRegistered(fd))
+				it->second(fd, EventType::kClose);
+
+			if((eventMask & EPOLLERR) && isHandlerRegistered(fd))
+				it->second(fd, EventType::kError);
+		}
+	}
 }
 
 
-void DispatcherImpl::processPendingEvents(int msecs)
+void DispatcherImpl::stopProcessing()
 {
-	epoll_event events[16];
-
-	int count = epoll_wait(epfd_, events, 16, msecs);
-	if(count == -1) {
-		LOG("epoll_wait call failed: {}", ::strerror(errno));
-		return;
-	}
-
-	for(int i = 0; i < count; ++i) {
-		int fd = events[i].data.fd;
-		auto it = handlersByFd_.find(fd);
-		u32 eventMask = events[i].events;
-
-		// An event handler can unregister itself, thus we need to check its validity
-		// every time wi use it
-		if((eventMask & EPOLLIN) && isHandlerRegistered(fd))
-			it->second(fd, EventType::kRead);
-
-		if((eventMask & EPOLLOUT) && isHandlerRegistered(fd))
-			it->second(fd, EventType::kWrite);
-
-		if((eventMask & EPOLLRDHUP) && isHandlerRegistered(fd))
-			it->second(fd, EventType::kClose);
-
-		if((eventMask & EPOLLERR) && isHandlerRegistered(fd))
-			it->second(fd, EventType::kError);
-	}
+	Command command = Command::kStopProcessing;
+	write(pipeFds_[1], &command, sizeof(command));
 }
 
 
