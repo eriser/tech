@@ -22,7 +22,8 @@
 #define ASSERT(expression, message) \
 		do { \
 			if(!(expression)) { \
-				std::cerr << __FILENAME__ << ':' << __LINE__ << message << std::endl; \
+				std::cerr << "Assertion failed at " << __FILENAME__ << ':' << __LINE__; \
+				std::cerr << ' ' << message << std::endl; \
 				std::abort(); \
 			} \
 		} while(0)
