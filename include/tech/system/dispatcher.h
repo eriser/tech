@@ -4,6 +4,7 @@
 #include <tech/delegate.h>
 #include <tech/flags.h>
 #include <tech/pimpl.h>
+#include <tech/signal.h>
 
 
 namespace Tech {
@@ -23,7 +24,7 @@ enum class EventType {
 using EventHandler = Delegate<void(int, EventType)>;
 
 
-class Dispatcher : public Interface<DispatcherImpl> {
+class Dispatcher : public Trackable, public Interface<DispatcherImpl> {
 public:
 	static Dispatcher* instance();
 
