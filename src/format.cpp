@@ -581,7 +581,7 @@ String formatValue(const String& value, const String& spec)
 }
 
 
-String formatValue(const ByteArray& value, const String& spec)
+String formatValue(const Binary& value, const String& spec)
 {
 	Formatter::Flags flags = Formatter::parseDefaultSpec(spec);
 

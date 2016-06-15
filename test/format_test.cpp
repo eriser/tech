@@ -19,7 +19,7 @@ TEST(FormatTest, DefaultConstruction)
 	String s3 = Formatter::format("This is a {0}", stdU16String);
 	ASSERT_TRUE(s3 == "This is a test");*/
 
-	ByteArray ba = "test";
+	Binary ba = "test";
 	String s4 = Formatter::format("This is a {0}", ba);
 	ASSERT_TRUE(s4 == "This is a test");
 }

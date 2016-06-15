@@ -96,15 +96,15 @@ Item::Item(double value) :
 
 
 Item::Item(const u8* buffer, size_t length) :
-	binary_(new Tech::ByteArray(reinterpret_cast<const char*>(buffer), length)),
+	binary_(new Tech::Binary(reinterpret_cast<const char*>(buffer), length)),
 	type_(ItemType::kBinary),
 	tag_(0)
 {
 }
 
 
-Item::Item(const Tech::ByteArray& binary) :
-	binary_(new Tech::ByteArray(binary)),
+Item::Item(const Tech::Binary& binary) :
+	binary_(new Tech::Binary(binary)),
 	type_(ItemType::kBinary),
 	tag_(0)
 {
@@ -151,7 +151,7 @@ Item& Item::operator=(const Item& other)
 	deletePayload();
 
 	if(other.isBinary()) {
-		binary_ = new Tech::ByteArray(*other.binary_);
+		binary_ = new Tech::Binary(*other.binary_);
 		*binary_ = *other.binary_;
 	}
 	else if(other.isString()) {
@@ -561,10 +561,10 @@ double Item::toReal() const
 }
 
 
-Tech::ByteArray Item::toBinary() const
+Tech::Binary Item::toBinary() const
 {
 	if(!isBinary())
-		return Tech::ByteArray();
+		return Tech::Binary();
 
 	return *binary_;
 }
@@ -634,7 +634,7 @@ uint Item::count() const
 }
 
 
-bool Item::hasField(const Tech::ByteArray& name) const
+bool Item::hasField(const Tech::Binary& name) const
 {
 	if(isMap()) {
 		auto it = std::lower_bound(map_->begin(), map_->end(), name, fieldLessThan);
@@ -671,7 +671,7 @@ Item& Item::operator[](uint index) const
 }
 
 
-Item& Item::operator[](const Tech::ByteArray& name)
+Item& Item::operator[](const Tech::Binary& name)
 {
 	if(!isMap())
 		deletePayload();
@@ -689,7 +689,7 @@ Item& Item::operator[](const Tech::ByteArray& name)
 }
 
 
-Item& Item::operator[](const Tech::ByteArray& name) const
+Item& Item::operator[](const Tech::Binary& name) const
 {
 	assert(isMap());
 	auto it = std::lower_bound(map_->begin(), map_->end(), name, fieldLessThan);
@@ -714,7 +714,7 @@ Item Item::get(uint index, const Item& defaultValue) const
 }
 
 
-Item Item::get(const Tech::ByteArray& name, const Item& defaultValue) const
+Item Item::get(const Tech::Binary& name, const Item& defaultValue) const
 {
 	if(isMap()) {
 		auto it = std::lower_bound(map_->begin(), map_->end(), name, fieldLessThan);
@@ -756,7 +756,7 @@ void Item::deletePayload()
 }
 
 
-bool Item::fieldLessThan(const Field& field, const Tech::ByteArray& name)
+bool Item::fieldLessThan(const Field& field, const Tech::Binary& name)
 {
 	return field.first < name;
 }

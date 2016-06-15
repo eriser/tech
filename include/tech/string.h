@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <tech/bytearray.h>
+#include <tech/binary.h>
 #include <tech/char.h>
 
 
@@ -69,7 +69,7 @@ public:
 	/**
 	 * Создает строку из байтового массива @p ba.
 	 */
-	String(const ByteArray& ba);
+	String(const Binary& ba);
 
 	/**
 	 * Создает строку из строки @p string.
@@ -418,7 +418,7 @@ public:
 	 * Преобразует строку из внутреннего представления в UTF-8 и возвращает результат в
 	 * байтовом массиве.
 	 */
-	ByteArray toUtf8() const;
+	Binary toUtf8() const;
 
 	/**
 	 * Возвращает строку, инициализарованную первыми @p size символами C-строки в

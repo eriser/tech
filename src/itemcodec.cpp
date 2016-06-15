@@ -4,15 +4,15 @@
 namespace Tech {
 
 
-ByteArray ItemCodec::encode(const Item& item)
+Binary ItemCodec::encode(const Item& item)
 {
-	ByteArray result;
+	Binary result;
 	encodeItem(item, &result);
 	return result;
 }
 
 
-Item ItemCodec::decode(const ByteArray& data, bool* isOk)
+Item ItemCodec::decode(const Binary& data, bool* isOk)
 {
 	Item result;
 	if(!decodeItem(data, &result)) {
@@ -29,7 +29,7 @@ Item ItemCodec::decode(const ByteArray& data, bool* isOk)
 }
 
 
-void ItemCodec::encodeItem(const Item& item, ByteArray* output)
+void ItemCodec::encodeItem(const Item& item, Binary* output)
 {
 	if(item.hasTag())
 		writeValue(kTag, item.tag(), output);
@@ -75,7 +75,7 @@ void ItemCodec::encodeItem(const Item& item, ByteArray* output)
 		break;
 
 	case ItemType::kString: {
-		ByteArray utf8 = item.toString().toUtf8();
+		Binary utf8 = item.toString().toUtf8();
 		writeValue(kString, utf8.length(), output);
 		*output += utf8;
 		break; }
@@ -104,7 +104,7 @@ void ItemCodec::encodeItem(const Item& item, ByteArray* output)
 }
 
 
-void ItemCodec::writeValue(Type type, u64 value, ByteArray* output)
+void ItemCodec::writeValue(Type type, u64 value, Binary* output)
 {
 	if((value >> 8) == 0) {
 		if(value < 12) {
@@ -141,7 +141,7 @@ void ItemCodec::writeValue(Type type, u64 value, ByteArray* output)
 }
 
 
-size_t ItemCodec::decodeItem(const ByteArray& data, Item* output)
+size_t ItemCodec::decodeItem(const Binary& data, Item* output)
 {
 	Type type;
 	u64 value;
@@ -259,7 +259,7 @@ size_t ItemCodec::decodeItem(const ByteArray& data, Item* output)
 }
 
 
-size_t ItemCodec::readValue(const ByteArray& data, Type* type, u64* value)
+size_t ItemCodec::readValue(const Binary& data, Type* type, u64* value)
 {
 	if(data.isEmpty())
 		return 0;

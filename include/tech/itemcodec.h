@@ -2,7 +2,7 @@
 #define TECH_ITEMCODEC_H
 
 #include <queue>
-#include <tech/bytearray.h>
+#include <tech/binary.h>
 #include <tech/item.h>
 #include <tech/types.h>
 
@@ -12,8 +12,8 @@ namespace Tech {
 
 class ItemCodec {
 public:
-	static ByteArray encode(const Item& item);
-	static Item decode(const ByteArray& data, bool* isOk = nullptr);
+	static Binary encode(const Item& item);
+	static Item decode(const Binary& data, bool* isOk = nullptr);
 
 private:
 	enum Type {
@@ -30,11 +30,11 @@ private:
 		kTag
 	};
 
-	static void encodeItem(const Item& item, ByteArray* output);
-	static void writeValue(Type type, u64 value, ByteArray* output);
+	static void encodeItem(const Item& item, Binary* output);
+	static void writeValue(Type type, u64 value, Binary* output);
 
-	static size_t decodeItem(const ByteArray& data, Item* output);
-	static size_t readValue(const ByteArray& data, Type* type, u64* value);
+	static size_t decodeItem(const Binary& data, Item* output);
+	static size_t readValue(const Binary& data, Type* type, u64* value);
 };
 
 

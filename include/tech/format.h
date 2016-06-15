@@ -138,7 +138,7 @@ String formatValue(u64 value, const String& spec = String());
 String formatValue(float value, const String& spec = String());
 String formatValue(double value, const String& spec = String());
 String formatValue(const String& value, const String& spec = String());
-String formatValue(const ByteArray& value, const String& spec = String());
+String formatValue(const Binary& value, const String& spec = String());
 String formatValue(const char* value, const String& spec = String());
 
 

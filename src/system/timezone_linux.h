@@ -10,15 +10,15 @@ namespace Tech {
 
 class TimeZoneImpl : public Implementation<TimeZone> {
 public:
-	TimeZoneImpl(const ByteArray& name);
+	TimeZoneImpl(const Binary& name);
 
-	ByteArray name() const;
+	Binary name() const;
 	Duration fromUtc(const Duration& utc) const;
 	Duration toUtc(const Duration& local, bool isDst) const;
 
 	static TimeZone local();
 	static TimeZone utc();
-	static ByteArrayList availableTimeZones();
+	static BinaryList availableTimeZones();
 
 private:
 	struct Transition {
@@ -39,20 +39,20 @@ private:
 		}
 	};
 
-	static const ByteArray tzDir_;
-	static ByteArray local_;
-	ByteArray name_;
+	static const Binary tzDir_;
+	static Binary local_;
+	Binary name_;
 	std::vector<Transition> transitions_;
 
-	bool parseTimeZoneFile(const ByteArray& path);
+	bool parseTimeZoneFile(const Binary& path);
 
-	static ByteArray tzDir();
+	static Binary tzDir();
 
-	static void scanDirectory(const ByteArray& path, uint prefixLength,
-			ByteArrayList* result);
+	static void scanDirectory(const Binary& path, uint prefixLength,
+			BinaryList* result);
 
-	static ByteArray readTimeZone();
-	static ByteArray readLocalTime();
+	static Binary readTimeZone();
+	static Binary readLocalTime();
 };
 
 

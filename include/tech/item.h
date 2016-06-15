@@ -2,7 +2,7 @@
 #define TECH_ITEM_H
 
 #include <vector>
-#include <tech/bytearray.h>
+#include <tech/binary.h>
 #include <tech/string.h>
 #include <tech/types.h>
 
@@ -39,7 +39,7 @@ public:
 	Item(u64 value);
 	Item(double value);
 	Item(const u8* buffer, size_t length);
-	Item(const Tech::ByteArray& binary);
+	Item(const Tech::Binary& binary);
 	Item(const char* string, size_t length = -1);
 	Item(const Tech::String& string);
 	Item(const Item& item);
@@ -76,7 +76,7 @@ public:
 	i64 toInteger() const;
 	u64 toUnsigned() const;
 	double toReal() const;
-	Tech::ByteArray toBinary() const;
+	Tech::Binary toBinary() const;
 	Tech::String toString() const;
 
 	bool hasTag() const ;
@@ -87,14 +87,14 @@ public:
 
 	Item& operator[](uint index);
 	Item& operator[](uint index) const;
-	Item& operator[](const Tech::ByteArray& name);
-	Item& operator[](const Tech::ByteArray& name) const;
+	Item& operator[](const Tech::Binary& name);
+	Item& operator[](const Tech::Binary& name) const;
 
-	bool hasField(const Tech::ByteArray& name) const;
+	bool hasField(const Tech::Binary& name) const;
 	Field& field(uint index) const;
 
 	Item get(uint index, const Item& defaultValue = Item()) const;
-	Item get(const Tech::ByteArray& name, const Item& defaultValue = Item()) const;
+	Item get(const Tech::Binary& name, const Item& defaultValue = Item()) const;
 
 	void swap(Item& other);
 
@@ -104,7 +104,7 @@ private:
 		i64 integer_;
 		u64 unsigned_;
 		double real_;
-		Tech::ByteArray* binary_;
+		Tech::Binary* binary_;
 		Tech::String* string_;
 		std::vector<Item>* array_;
 		std::vector<Field>* map_;
@@ -115,7 +115,7 @@ private:
 	u32 tag_;
 
 	void deletePayload();
-	static bool fieldLessThan(const Field& field, const Tech::ByteArray& name);
+	static bool fieldLessThan(const Field& field, const Tech::Binary& name);
 };
 
 

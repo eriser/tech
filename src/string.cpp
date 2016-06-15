@@ -131,7 +131,7 @@ String::String(const ch16* string, size_t size)
 }
 
 
-String::String(const ByteArray& ba) :
+String::String(const Binary& ba) :
 	String()
 {
 	*this = fromUtf8(ba.data(), ba.length());
@@ -1225,9 +1225,9 @@ String String::trimmed() const
 }
 
 
-ByteArray String::toUtf8() const
+Binary String::toUtf8() const
 {
-	ByteArray result;
+	Binary result;
 	const char16_t* pos = begin_;
 
 	while(pos != end_) {
@@ -1238,17 +1238,17 @@ ByteArray String::toUtf8() const
 			code = static_cast<char32_t>(word);
 		}
 		else if(word >= 0xDC00) {
-			return ByteArray();
+			return Binary();
 		}
 		else {
 			code = (word & 0x03FF) << 10;
 			pos++;
 			if(pos == end_)
-				return ByteArray();
+				return Binary();
 
 			word = *pos;
 			if(word < 0xDC00 || word > 0xDFFF) {
-				return ByteArray();
+				return Binary();
 			}
 			else {
 				code |= word & 0x03FF;

@@ -33,14 +33,14 @@ struct Info {
 }
 
 
-const ByteArray TimeZoneImpl::tzDir_ = TimeZoneImpl::tzDir();
-ByteArray TimeZoneImpl::local_;
+const Binary TimeZoneImpl::tzDir_ = TimeZoneImpl::tzDir();
+Binary TimeZoneImpl::local_;
 
 
-TimeZoneImpl::TimeZoneImpl(const ByteArray& name) :
+TimeZoneImpl::TimeZoneImpl(const Binary& name) :
 	Implementation<TimeZone>(nullptr)
 {
-	ByteArray tzFile;
+	Binary tzFile;
 	if(name == "localtime") {
 		tzFile = "/etc/localtime";
 	}
@@ -58,7 +58,7 @@ TimeZoneImpl::TimeZoneImpl(const ByteArray& name) :
 }
 
 
-ByteArray TimeZoneImpl::name() const
+Binary TimeZoneImpl::name() const
 {
 	return name_;
 }
@@ -122,16 +122,16 @@ TimeZone TimeZoneImpl::utc()
 }
 
 
-ByteArrayList TimeZoneImpl::availableTimeZones()
+BinaryList TimeZoneImpl::availableTimeZones()
 {
-	ByteArrayList result;
+	BinaryList result;
 
 	scanDirectory(tzDir_, tzDir_.length(), &result);
 	return result;
 }
 
 
-bool TimeZoneImpl::parseTimeZoneFile(const ByteArray& path)
+bool TimeZoneImpl::parseTimeZoneFile(const Binary& path)
 {
 	auto readHeader = [] (FILE* f, Header* header) -> bool {
 		if(fread(header, sizeof(Header), 1, f) != 1)
@@ -212,11 +212,11 @@ bool TimeZoneImpl::parseTimeZoneFile(const ByteArray& path)
 }
 
 
-ByteArray TimeZoneImpl::tzDir()
+Binary TimeZoneImpl::tzDir()
 {
 	const char* value = getenv("TZDIR");
 	if(value) {
-		ByteArray result = value;
+		Binary result = value;
 		if(!result.endsWith('/'))
 			result += '/';
 
@@ -227,15 +227,15 @@ ByteArray TimeZoneImpl::tzDir()
 }
 
 
-void TimeZoneImpl::scanDirectory(const ByteArray& path, uint prefixLength,
-		ByteArrayList* result)
+void TimeZoneImpl::scanDirectory(const Binary& path, uint prefixLength,
+		BinaryList* result)
 {
 	DIR* dir = opendir(path);
 	dirent* ent;
 	struct stat st;
 
 	while((ent = readdir(dir)) != nullptr) {
-		ByteArray name = path + ent->d_name;
+		Binary name = path + ent->d_name;
 
 		if(name.endsWith('.') || name.endsWith("/posix") || name.endsWith("/posixrules")
 		   		|| name.endsWith("/right"))
@@ -267,17 +267,17 @@ void TimeZoneImpl::scanDirectory(const ByteArray& path, uint prefixLength,
 }
 
 
-ByteArray TimeZoneImpl::readTimeZone()
+Binary TimeZoneImpl::readTimeZone()
 {
 	FILE* f;
 	char* line = nullptr;
 	size_t len = 0;
-	ByteArray result;
+	Binary result;
 
 	f = fopen("/etc/timzone", "r");
 	if(f) {
 		while(getline(&line, &len, f) != -1) {
-			result = ByteArray(line).trimmed();
+			result = Binary(line).trimmed();
 			if(!result.startsWith('#'))
 				break;
 
@@ -295,7 +295,7 @@ ByteArray TimeZoneImpl::readTimeZone()
 }
 
 
-ByteArray TimeZoneImpl::readLocalTime()
+Binary TimeZoneImpl::readLocalTime()
 {
 	struct stat st;
 
@@ -304,11 +304,11 @@ ByteArray TimeZoneImpl::readLocalTime()
 			char buffer[PATH_MAX];
 			ssize_t length = readlink("/etc/localtime", buffer, PATH_MAX);
 			if(length < 1)
-				return ByteArray();
+				return Binary();
 
-			ByteArray fileName(buffer, length);
+			Binary fileName(buffer, length);
 			if(!fileName.startsWith(tzDir_))
-				return ByteArray();
+				return Binary();
 
 			return fileName.middleRef(tzDir_.length());
 		}
@@ -319,7 +319,7 @@ ByteArray TimeZoneImpl::readLocalTime()
 		}
 	}
 
-	return ByteArray();
+	return Binary();
 }
 
 

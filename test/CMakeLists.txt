@@ -12,7 +12,7 @@ set(SOURCES
 	typetraits_test.cpp
 	utils_test.cpp
 	delegate_test.cpp
-	bytearray_test.cpp
+	binary_test.cpp
 	string_test.cpp
 	format_test.cpp
 )

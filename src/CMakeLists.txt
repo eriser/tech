@@ -4,7 +4,7 @@ set(TARGET ${PROJECT_NAME})
 
 # Common sources
 set(SOURCES
-    bytearray.cpp
+	binary.cpp
     char.cpp
     duration.cpp
     format.cpp
@@ -16,7 +16,7 @@ set(SOURCES
 	)
 
 set(HEADERS
-	../include/tech/bytearray.h
+	../include/tech/binary.h
 	../include/tech/char.h
 	../include/tech/circbuffer.h
 	../include/tech/delegate.h

@@ -7,16 +7,16 @@
 namespace Tech {
 
 
-std::map<ByteArray, Arc<TimeZoneImpl>> TimeZone::dataByName_;
+std::map<Binary, Arc<TimeZoneImpl>> TimeZone::dataByName_;
 
 
-TimeZone::TimeZone(const ByteArray& name) :
+TimeZone::TimeZone(const Binary& name) :
 	Interface<TimeZoneImpl>(implForZone(name))
 {
 }
 
 
-Arc<TimeZoneImpl> TimeZone::implForZone(const ByteArray& name)
+Arc<TimeZoneImpl> TimeZone::implForZone(const Binary& name)
 {
 	auto it = dataByName_.find(name);
 
@@ -30,7 +30,7 @@ Arc<TimeZoneImpl> TimeZone::implForZone(const ByteArray& name)
 }
 
 
-ByteArray TimeZone::name() const
+Binary TimeZone::name() const
 {
 	return impl()->name();
 }
@@ -60,7 +60,7 @@ TimeZone TimeZone::utc()
 }
 
 
-ByteArrayList TimeZone::availableTimeZones()
+BinaryList TimeZone::availableTimeZones()
 {
 	return TimeZoneImpl::availableTimeZones();
 }

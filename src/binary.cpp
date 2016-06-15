@@ -1,4 +1,4 @@
-#include <tech/bytearray.h>
+#include <tech/binary.h>
 
 #include <algorithm>
 #include <atomic>
@@ -15,11 +15,11 @@
 namespace Tech {
 
 
-struct ByteArray::Buffer {
+struct Binary::Buffer {
 	std::atomic<uint> rc;
 
 	// capacity содержит значение размера выделенного буфера, а в случае, если
-	// используется внешний буфер (ByteArray сконструирован через вызов fromRawData()),
+	// используется внешний буфер (Binary сконструирован через вызов fromRawData()),
 	// значение capacity устанавливается в 0. Поэтому во всех функциях, которые
 	// используют capacity, требуется учитывать этот случай.
 	size_t capacity;
@@ -98,11 +98,11 @@ struct ByteArray::Buffer {
 };
 
 
-const size_t ByteArray::Buffer::kMinCapacity;
-std::unique_ptr<ByteArray::Buffer> ByteArray::sharedNull_;
+const size_t Binary::Buffer::kMinCapacity;
+std::unique_ptr<Binary::Buffer> Binary::sharedNull_;
 
 
-ByteArray::ByteArray() :
+Binary::Binary() :
 	buffer_(sharedNull()),
 	begin_(nullptr),
 	end_(nullptr)
@@ -111,7 +111,7 @@ ByteArray::ByteArray() :
 }
 
 
-ByteArray::ByteArray(const char* string, size_t size)
+Binary::Binary(const char* string, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -123,7 +123,7 @@ ByteArray::ByteArray(const char* string, size_t size)
 }
 
 
-ByteArray::ByteArray(const ByteArray& other)
+Binary::Binary(const Binary& other)
 {
 	other.buffer_->acquire();
 	buffer_ = other.buffer_;
@@ -132,7 +132,7 @@ ByteArray::ByteArray(const ByteArray& other)
 }
 
 
-ByteArray::ByteArray(char ch)
+Binary::Binary(char ch)
 {
 	buffer_ = Buffer::allocate(1);
 	begin_ = buffer_->beginFor(1);
@@ -142,7 +142,7 @@ ByteArray::ByteArray(char ch)
 }
 
 
-ByteArray::ByteArray(size_t size, char value)
+Binary::Binary(size_t size, char value)
 {
 	buffer_ = Buffer::allocate(size);
 	begin_ = buffer_->beginFor(size);
@@ -153,13 +153,13 @@ ByteArray::ByteArray(size_t size, char value)
 }
 
 
-ByteArray::~ByteArray()
+Binary::~Binary()
 {
 	buffer_->release();
 }
 
 
-ByteArray& ByteArray::operator=(const ByteArray& other)
+Binary& Binary::operator=(const Binary& other)
 {
 	if(buffer_ != other.buffer_) {
 		other.buffer_->acquire();
@@ -179,7 +179,7 @@ ByteArray& ByteArray::operator=(const ByteArray& other)
 }
 
 
-ByteArray& ByteArray::operator=(const char* string)
+Binary& Binary::operator=(const char* string)
 {
 	size_t size = std::char_traits<char>::length(string);
 
@@ -195,7 +195,7 @@ ByteArray& ByteArray::operator=(const char* string)
 }
 
 
-ByteArray& ByteArray::operator=(char ch)
+Binary& Binary::operator=(char ch)
 {
 	if(!buffer_->isUnique()) {
 		buffer_->release();
@@ -211,7 +211,7 @@ ByteArray& ByteArray::operator=(char ch)
 }
 
 
-bool ByteArray::operator==(const ByteArray& other) const
+bool Binary::operator==(const Binary& other) const
 {
 	if(buffer_ == other.buffer_)
 		return true;
@@ -223,7 +223,7 @@ bool ByteArray::operator==(const ByteArray& other) const
 }
 
 
-bool ByteArray::operator==(const char* string) const
+bool Binary::operator==(const char* string) const
 {
 	size_t size = std::char_traits<char>::length(string);
 	if(size != length())
@@ -233,39 +233,39 @@ bool ByteArray::operator==(const char* string) const
 }
 
 
-bool ByteArray::operator!=(const ByteArray& other) const
+bool Binary::operator!=(const Binary& other) const
 {
 	return !(*this == other);
 }
 
 
-bool ByteArray::operator!=(const char* string) const
+bool Binary::operator!=(const char* string) const
 {
 	return !(*this == string);
 }
 
 
-bool ByteArray::operator<(const ByteArray& other) const
+bool Binary::operator<(const Binary& other) const
 {
 	return std::lexicographical_compare(begin_, end_, other.begin_, other.end_);
 }
 
 
-bool ByteArray::operator<(const char* string) const
+bool Binary::operator<(const char* string) const
 {
 	size_t size = std::char_traits<char>::length(string);
 	return std::lexicographical_compare(begin_, end_, string, string + size);
 }
 
 
-bool ByteArray::operator<=(const ByteArray& other) const
+bool Binary::operator<=(const Binary& other) const
 {
 	auto func = [](char c1, char c2) -> bool { return c1 <= c2; };
 	return std::lexicographical_compare(begin_, end_, other.begin_, other.end_, func);
 }
 
 
-bool ByteArray::operator<=(const char* string) const
+bool Binary::operator<=(const char* string) const
 {
 	size_t size = std::char_traits<char>::length(string);
 	auto func = [](char c1, char c2) -> bool { return c1 <= c2; };
@@ -273,14 +273,14 @@ bool ByteArray::operator<=(const char* string) const
 }
 
 
-bool ByteArray::operator>(const ByteArray& other) const
+bool Binary::operator>(const Binary& other) const
 {
 	auto func = [](char c1, char c2) -> bool { return c1 > c2; };
 	return std::lexicographical_compare(begin_, end_, other.begin_, other.end_, func);
 }
 
 
-bool ByteArray::operator>(const char* string) const
+bool Binary::operator>(const char* string) const
 {
 	size_t size = std::char_traits<char>::length(string);
 	auto func = [](char c1, char c2) -> bool { return c1 > c2; };
@@ -288,14 +288,14 @@ bool ByteArray::operator>(const char* string) const
 }
 
 
-bool ByteArray::operator>=(const ByteArray& other) const
+bool Binary::operator>=(const Binary& other) const
 {
 	auto func = [](char c1, char c2) -> bool { return c1 >= c2; };
 	return std::lexicographical_compare(begin_, end_, other.begin_, other.end_, func);
 }
 
 
-bool ByteArray::operator>=(const char* string) const
+bool Binary::operator>=(const char* string) const
 {
 	size_t size = std::char_traits<char>::length(string);
 	auto func = [](char c1, char c2) -> bool { return c1 >= c2; };
@@ -303,56 +303,56 @@ bool ByteArray::operator>=(const char* string) const
 }
 
 
-ByteArray& ByteArray::operator+=(const ByteArray& other)
+Binary& Binary::operator+=(const Binary& other)
 {
 	return append(other);
 }
 
 
-ByteArray& ByteArray::operator+=(const char* string)
+Binary& Binary::operator+=(const char* string)
 {
 	return append(string);
 
 }
 
 
-ByteArray& ByteArray::operator+=(char ch)
+Binary& Binary::operator+=(char ch)
 {
 	return append(ch);
 }
 
 
-char ByteArray::operator[](size_t position) const
+char Binary::operator[](size_t position) const
 {
 	return begin_[position];
 }
 
 
-ByteRef ByteArray::operator[](size_t position)
+ByteRef Binary::operator[](size_t position)
 {
 	return ByteRef(*this, position);
 }
 
 
-char ByteArray::at(size_t position) const
+char Binary::at(size_t position) const
 {
 	return begin_[position];
 }
 
 
-u8 ByteArray::byteAt(size_t position) const
+u8 Binary::byteAt(size_t position) const
 {
 	return *reinterpret_cast<u8*>(begin_ + position);
 }
 
 
-size_t ByteArray::spaceAtBegin() const
+size_t Binary::spaceAtBegin() const
 {
 	return begin_ - buffer_->data;
 }
 
 
-size_t ByteArray::spaceAtEnd() const
+size_t Binary::spaceAtEnd() const
 {
 	if(buffer_->capacity)
 		return buffer_->capacity - (end_ - buffer_->data);
@@ -361,25 +361,25 @@ size_t ByteArray::spaceAtEnd() const
 }
 
 
-bool ByteArray::isNull() const
+bool Binary::isNull() const
 {
 	return buffer_ == sharedNull();
 }
 
 
-bool ByteArray::isEmpty() const
+bool Binary::isEmpty() const
 {
 	return begin_ == end_;
 }
 
 
-size_t ByteArray::length() const
+size_t Binary::length() const
 {
 	return end_ - begin_;
 }
 
 
-void ByteArray::clear()
+void Binary::clear()
 {
 	if(!buffer_->isUnique()) {
 		buffer_->release();
@@ -392,7 +392,7 @@ void ByteArray::clear()
 }
 
 
-void ByteArray::swap(ByteArray& other)
+void Binary::swap(Binary& other)
 {
 	std::swap(buffer_, other.buffer_);
 	std::swap(begin_, other.begin_);
@@ -400,11 +400,11 @@ void ByteArray::swap(ByteArray& other)
 }
 
 
-ByteArray ByteArray::left(size_t count) const
+Binary Binary::left(size_t count) const
 {
 	count = std::min(count, length());
 
-	ByteArray result = ByteArray::uninitialized(count);
+	Binary result = Binary::uninitialized(count);
 	std::copy(begin_, begin_ + count, result.begin_);
 
 	*result.end_ = '\0';
@@ -412,12 +412,12 @@ ByteArray ByteArray::left(size_t count) const
 }
 
 
-ByteArray ByteArray::middle(size_t from, size_t count) const
+Binary Binary::middle(size_t from, size_t count) const
 {
 	from = std::min(from, length());
 	count = std::min(count, length() - from);
 
-	ByteArray result = ByteArray::uninitialized(count);
+	Binary result = Binary::uninitialized(count);
 	std::copy(begin_ + from, begin_ + from + count, result.begin_);
 
 	*result.end_ = '\0';
@@ -425,12 +425,12 @@ ByteArray ByteArray::middle(size_t from, size_t count) const
 }
 
 
-ByteArray ByteArray::right(size_t count) const
+Binary Binary::right(size_t count) const
 {
 	count = std::min(count, length());
 	size_t from = length() - count;
 
-	ByteArray result = ByteArray::uninitialized(count);
+	Binary result = Binary::uninitialized(count);
 	std::copy(begin_ + from, begin_ + from + count, result.begin_);
 
 	*result.end_ = '\0';
@@ -438,33 +438,33 @@ ByteArray ByteArray::right(size_t count) const
 }
 
 
-ByteArray ByteArray::leftRef(size_t count) const
+Binary Binary::leftRef(size_t count) const
 {
 	count = std::min(count, length());
-	return ByteArray(*this, 0, count);
+	return Binary(*this, 0, count);
 }
 
 
-ByteArray ByteArray::middleRef(size_t from, size_t count) const
+Binary Binary::middleRef(size_t from, size_t count) const
 {
 	from = std::min(from, length());
 	count = std::min(count, length() - from);
-	return ByteArray(*this, from, count);
+	return Binary(*this, from, count);
 }
 
 
-ByteArray ByteArray::rightRef(size_t count) const
+Binary Binary::rightRef(size_t count) const
 {
 	count = std::min(count, length());
 	size_t from = length() - count;
-	return ByteArray(*this, from, count);
+	return Binary(*this, from, count);
 }
 
 
-ByteArray ByteArray::leftJustified(size_t width, char fill, bool truncate) const
+Binary Binary::leftJustified(size_t width, char fill, bool truncate) const
 {
 	if(width >= length()) {
-		ByteArray result = *this;
+		Binary result = *this;
 		size_t count = width - length();
 
 		while(count--)
@@ -480,10 +480,10 @@ ByteArray ByteArray::leftJustified(size_t width, char fill, bool truncate) const
 }
 
 
-ByteArray ByteArray::middleJustified(size_t width, char fill, bool truncate) const
+Binary Binary::middleJustified(size_t width, char fill, bool truncate) const
 {
 	if(width >= length()) {
-		ByteArray result = *this;
+		Binary result = *this;
 		size_t count = width - length();
 		size_t halfCount = count / 2;
 
@@ -505,10 +505,10 @@ ByteArray ByteArray::middleJustified(size_t width, char fill, bool truncate) con
 }
 
 
-ByteArray ByteArray::rightJustified(size_t width, char fill, bool truncate) const
+Binary Binary::rightJustified(size_t width, char fill, bool truncate) const
 {
 	if(width >= length()) {
-		ByteArray result = *this;
+		Binary result = *this;
 		size_t count = width - length();
 
 		while(count--)
@@ -524,7 +524,7 @@ ByteArray ByteArray::rightJustified(size_t width, char fill, bool truncate) cons
 }
 
 
-ByteArray& ByteArray::fill(char ch)
+Binary& Binary::fill(char ch)
 {
 	makeUnique();
 	std::fill(begin_, end_, ch);
@@ -532,7 +532,7 @@ ByteArray& ByteArray::fill(char ch)
 }
 
 
-bool ByteArray::startsWith(const char* string, size_t size) const
+bool Binary::startsWith(const char* string, size_t size) const
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -544,19 +544,19 @@ bool ByteArray::startsWith(const char* string, size_t size) const
 }
 
 
-bool ByteArray::startsWith(const ByteArray& other) const
+bool Binary::startsWith(const Binary& other) const
 {
 	return startsWith(other.begin_, other.length());
 }
 
 
-bool ByteArray::startsWith(char ch) const
+bool Binary::startsWith(char ch) const
 {
 	return startsWith(&ch, 1);
 }
 
 
-bool ByteArray::endsWith(const char* string, size_t size) const
+bool Binary::endsWith(const char* string, size_t size) const
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -568,21 +568,21 @@ bool ByteArray::endsWith(const char* string, size_t size) const
 }
 
 
-bool ByteArray::endsWith(const ByteArray& other) const
+bool Binary::endsWith(const Binary& other) const
 {
 	return endsWith(other.begin_, other.length());
 }
 
 
-bool ByteArray::endsWith(char ch) const
+bool Binary::endsWith(char ch) const
 {
 	return endsWith(&ch, 1);
 }
 
 
-ByteArrayList ByteArray::split(char sep, SplitBahavior behavior) const
+BinaryList Binary::split(char sep, SplitBahavior behavior) const
 {
-	ByteArrayList result;
+	BinaryList result;
 
 	char* begin = begin_;
 	char* end = begin_;
@@ -603,9 +603,9 @@ ByteArrayList ByteArray::split(char sep, SplitBahavior behavior) const
 }
 
 
-ByteArrayList ByteArray::split(const ByteArray& sep, SplitBahavior behavior) const
+BinaryList Binary::split(const Binary& sep, SplitBahavior behavior) const
 {
-	ByteArrayList result;
+	BinaryList result;
 
 	size_t begin = 0;
 	size_t end = 0;
@@ -625,7 +625,7 @@ ByteArrayList ByteArray::split(const ByteArray& sep, SplitBahavior behavior) con
 }
 
 
-void ByteArray::chop(size_t n)
+void Binary::chop(size_t n)
 {
 	if(n == 0)
 		return;
@@ -636,7 +636,7 @@ void ByteArray::chop(size_t n)
 }
 
 
-void ByteArray::truncate(size_t position)
+void Binary::truncate(size_t position)
 {
 	if(position > length())
 		return;
@@ -647,12 +647,12 @@ void ByteArray::truncate(size_t position)
 }
 
 
-ByteArray ByteArray::simplified() const
+Binary Binary::simplified() const
 {
 	if(isEmpty())
-		return ByteArray();
+		return Binary();
 
-	ByteArray result = ByteArray::uninitialized(length());
+	Binary result = Binary::uninitialized(length());
 	char* current = begin_;
 	char* end = end_;
 	char* output = result.begin_;
@@ -681,10 +681,10 @@ ByteArray ByteArray::simplified() const
 }
 
 
-ByteArray ByteArray::trimmed() const
+Binary Binary::trimmed() const
 {
 	if(isEmpty())
-		return ByteArray();
+		return Binary();
 
 	char* begin = begin_;
 	char* end = end_;
@@ -696,9 +696,9 @@ ByteArray ByteArray::trimmed() const
 		end--;
 
 	if(begin == end)
-		return ByteArray();
+		return Binary();
 
-	ByteArray result = ByteArray::uninitialized(end - begin);
+	Binary result = Binary::uninitialized(end - begin);
 	result.end_ = std::copy(begin, end, result.begin_);
 
 	*end = '\0';
@@ -706,12 +706,12 @@ ByteArray ByteArray::trimmed() const
 }
 
 
-ByteArray ByteArray::toHex(bool upperCase) const
+Binary Binary::toHex(bool upperCase) const
 {
 	if(isEmpty())
-		return ByteArray();
+		return Binary();
 
-	ByteArray result = ByteArray::uninitialized(length() * 2);
+	Binary result = Binary::uninitialized(length() * 2);
 	char a = upperCase ? 'A' : 'a';
 	char* current = begin_;
 	char* output = result.begin_;
@@ -743,15 +743,15 @@ ByteArray ByteArray::toHex(bool upperCase) const
 }
 
 
-ByteArray ByteArray::fromHex(const char* string, size_t size)
+Binary Binary::fromHex(const char* string, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
 
 	if(size == 0)
-		return ByteArray();
+		return Binary();
 
-	ByteArray result = ByteArray::uninitialized((size + 1) / 2);
+	Binary result = Binary::uninitialized((size + 1) / 2);
 	char* output = result.begin_;
 	const char* current = string;
 
@@ -771,7 +771,7 @@ ByteArray ByteArray::fromHex(const char* string, size_t size)
 			ch = ch - 'A' + 10;
 		}
 		else {
-			return ByteArray();
+			return Binary();
 		}
 
 		if(isOdd) {
@@ -790,18 +790,18 @@ ByteArray ByteArray::fromHex(const char* string, size_t size)
 }
 
 
-ByteArray ByteArray::fromHex(const ByteArray& array)
+Binary Binary::fromHex(const Binary& array)
 {
 	return fromHex(array.begin_, array.length());
 }
 
 
-ByteArray ByteArray::fromRawData(const char* data, size_t size)
+Binary Binary::fromRawData(const char* data, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(data);
 
-	ByteArray result;
+	Binary result;
 	result.buffer_ = Buffer::allocate(size);
 	result.buffer_->data = const_cast<char*>(data);
 	result.buffer_->capacity = 0;
@@ -812,26 +812,26 @@ ByteArray ByteArray::fromRawData(const char* data, size_t size)
 }
 
 
-char* ByteArray::data()
+char* Binary::data()
 {
 	makeUnique();
 	return begin_;
 }
 
 
-const char* ByteArray::data() const
+const char* Binary::data() const
 {
 	return begin_;
 }
 
 
-const char* ByteArray::constData() const
+const char* Binary::constData() const
 {
 	return begin_;
 }
 
 
-ByteArray& ByteArray::append(const char* string, size_t size)
+Binary& Binary::append(const char* string, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -858,19 +858,19 @@ ByteArray& ByteArray::append(const char* string, size_t size)
 }
 
 
-ByteArray& ByteArray::append(const ByteArray &other)
+Binary& Binary::append(const Binary &other)
 {
 	return append(other.begin_, other.length());
 }
 
 
-ByteArray& ByteArray::append(char ch)
+Binary& Binary::append(char ch)
 {
 	return append(&ch, 1);
 }
 
 
-ByteArray& ByteArray::prepend(const char* string, size_t size)
+Binary& Binary::prepend(const char* string, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -897,19 +897,19 @@ ByteArray& ByteArray::prepend(const char* string, size_t size)
 }
 
 
-ByteArray& ByteArray::prepend(const ByteArray &other)
+Binary& Binary::prepend(const Binary &other)
 {
 	return prepend(other.begin_, other.length());
 }
 
 
-ByteArray& ByteArray::prepend(char ch)
+Binary& Binary::prepend(char ch)
 {
 	return prepend(&ch, 1);
 }
 
 
-ByteArray& ByteArray::insert(size_t position, const char* string, size_t size)
+Binary& Binary::insert(size_t position, const char* string, size_t size)
 {
 	if(position == 0) {
 		return prepend(string, size);
@@ -951,19 +951,19 @@ ByteArray& ByteArray::insert(size_t position, const char* string, size_t size)
 }
 
 
-ByteArray& ByteArray::insert(size_t position, const ByteArray& other)
+Binary& Binary::insert(size_t position, const Binary& other)
 {
 	return insert(position, other.begin_, other.length());
 }
 
 
-ByteArray& ByteArray::insert(size_t position, char ch)
+Binary& Binary::insert(size_t position, char ch)
 {
 	return insert(position, &ch, 1);
 }
 
 
-ByteArray& ByteArray::remove(size_t position, size_t count)
+Binary& Binary::remove(size_t position, size_t count)
 {
 	if(position >= length() || count == 0)
 		return *this;
@@ -1008,7 +1008,7 @@ ByteArray& ByteArray::remove(size_t position, size_t count)
 }
 
 
-ByteArray& ByteArray::remove(const char* string, size_t size)
+Binary& Binary::remove(const char* string, size_t size)
 {
 	if(size == kNoPos)
 		size = std::char_traits<char>::length(string);
@@ -1060,37 +1060,37 @@ ByteArray& ByteArray::remove(const char* string, size_t size)
 }
 
 
-ByteArray& ByteArray::remove(const ByteArray& other)
+Binary& Binary::remove(const Binary& other)
 {
 	return remove(other.begin_, other.length());
 }
 
 
-ByteArray& ByteArray::remove(char ch)
+Binary& Binary::remove(char ch)
 {
 	return remove(&ch, 1);
 }
 
 
-ByteArray& ByteArray::replace(char before, const char* after, size_t afterSize)
+Binary& Binary::replace(char before, const char* after, size_t afterSize)
 {
 	return replace(&before, after, 1, afterSize);
 }
 
 
-ByteArray& ByteArray::replace(char before, const ByteArray& after)
+Binary& Binary::replace(char before, const Binary& after)
 {
 	return replace(&before, after.begin_, 1, after.length());
 }
 
 
-ByteArray& ByteArray::replace(char before, char after)
+Binary& Binary::replace(char before, char after)
 {
 	return replace(&before, &after, 1, 1);
 }
 
 
-ByteArray& ByteArray::replace(const char* before, const char* after, size_t beforeSize,
+Binary& Binary::replace(const char* before, const char* after, size_t beforeSize,
 		size_t afterSize)
 {
 	if(beforeSize == kNoPos)
@@ -1189,26 +1189,26 @@ ByteArray& ByteArray::replace(const char* before, const char* after, size_t befo
 }
 
 
-ByteArray& ByteArray::replace(const ByteArray& before, const ByteArray& after)
+Binary& Binary::replace(const Binary& before, const Binary& after)
 {
 	return replace(before.begin_, after.begin_, before.length(), after.length());
 }
 
 
-ByteArray& ByteArray::replace(const char* before, char after, size_t beforeSize)
+Binary& Binary::replace(const char* before, char after, size_t beforeSize)
 {
 	return replace(before, &after, beforeSize, 1);
 }
 
 
-ByteArray& ByteArray::replace(size_t position, size_t count, const char* after,
+Binary& Binary::replace(size_t position, size_t count, const char* after,
 		size_t afterSize)
 {
 	if(afterSize == kNoPos)
 		afterSize = std::char_traits<char>::length(after);
 
 	if(position == 0 && count == length()) {
-		*this = ByteArray(after, afterSize);
+		*this = Binary(after, afterSize);
 		return *this;
 	}
 
@@ -1272,20 +1272,20 @@ ByteArray& ByteArray::replace(size_t position, size_t count, const char* after,
 }
 
 
-ByteArray& ByteArray::replace(size_t position, size_t count,
-		const ByteArray& after)
+Binary& Binary::replace(size_t position, size_t count,
+		const Binary& after)
 {
 	return replace(position, count, after.begin_, after.length());
 }
 
 
-ByteArray& ByteArray::replace(size_t position, size_t count, char after)
+Binary& Binary::replace(size_t position, size_t count, char after)
 {
 	return replace(position, count, &after, 1);
 }
 
 
-size_t ByteArray::indexOf(const char* string, size_t size, size_t from) const
+size_t Binary::indexOf(const char* string, size_t size, size_t from) const
 {
 	if(size == 0)
 		return from;
@@ -1306,13 +1306,13 @@ size_t ByteArray::indexOf(const char* string, size_t size, size_t from) const
 }
 
 
-size_t ByteArray::indexOf(const ByteArray& other, size_t from) const
+size_t Binary::indexOf(const Binary& other, size_t from) const
 {
 	return indexOf(other.begin_, other.length(), from);
 }
 
 
-size_t ByteArray::indexOf(char ch, size_t from) const
+size_t Binary::indexOf(char ch, size_t from) const
 {
 	const char* result = std::find(begin_ + from, end_, ch);
 	if(result != end_)
@@ -1322,7 +1322,7 @@ size_t ByteArray::indexOf(char ch, size_t from) const
 }
 
 
-size_t ByteArray::lastIndexOf(const char* string, size_t size,
+size_t Binary::lastIndexOf(const char* string, size_t size,
 		size_t from) const
 {
 	if(size == 0)
@@ -1344,13 +1344,13 @@ size_t ByteArray::lastIndexOf(const char* string, size_t size,
 }
 
 
-size_t ByteArray::lastIndexOf(const ByteArray& other, size_t from) const
+size_t Binary::lastIndexOf(const Binary& other, size_t from) const
 {
 	return lastIndexOf(other.begin_, other.length(), from);
 }
 
 
-size_t ByteArray::lastIndexOf(char ch, size_t from) const
+size_t Binary::lastIndexOf(char ch, size_t from) const
 {
 	typedef std::reverse_iterator<const char*> Iterator;
 
@@ -1365,7 +1365,7 @@ size_t ByteArray::lastIndexOf(char ch, size_t from) const
 }
 
 
-ByteArray::ByteArray(const ByteArray& other, size_t position, size_t count) :
+Binary::Binary(const Binary& other, size_t position, size_t count) :
 	buffer_(other.buffer_),
 	begin_(other.begin_ + position),
 	end_(begin_ + count)
@@ -1374,7 +1374,7 @@ ByteArray::ByteArray(const ByteArray& other, size_t position, size_t count) :
 }
 
 
-size_t ByteArray::hashingSearch(const char* string,	size_t size, size_t from) const
+size_t Binary::hashingSearch(const char* string,	size_t size, size_t from) const
 {
 	u32 needleHash = 0;
 	u32 haystackHash = 0;
@@ -1404,7 +1404,7 @@ size_t ByteArray::hashingSearch(const char* string,	size_t size, size_t from) co
 }
 
 
-size_t ByteArray::hashingReverseSearch(const char* string, size_t size,
+size_t Binary::hashingReverseSearch(const char* string, size_t size,
 		size_t from) const
 {
 	u32 needleHash = 0;
@@ -1439,7 +1439,7 @@ size_t ByteArray::hashingReverseSearch(const char* string, size_t size,
 }
 
 
-size_t ByteArray::boyerMooreSearch(const char* string, size_t size, size_t from) const
+size_t Binary::boyerMooreSearch(const char* string, size_t size, size_t from) const
 {
 	const size_t kMaxSkip = Limits<u8>::max();
 	const size_t kTableSize = kMaxSkip + 1;
@@ -1467,7 +1467,7 @@ size_t ByteArray::boyerMooreSearch(const char* string, size_t size, size_t from)
 }
 
 
-size_t ByteArray::boyerMooreReverseSearch(const char* string, size_t size,
+size_t Binary::boyerMooreReverseSearch(const char* string, size_t size,
 		size_t from) const
 {
 	const size_t kMaxSkip = Limits<u8>::max();
@@ -1496,25 +1496,25 @@ size_t ByteArray::boyerMooreReverseSearch(const char* string, size_t size,
 }
 
 
-ByteArray ByteArray::toUpper() const
+Binary Binary::toUpper() const
 {
-	ByteArray result = ByteArray::uninitialized(length());
+	Binary result = Binary::uninitialized(length());
 
 	std::transform(begin_, end_, result.begin_, ::toupper);
 	return result;
 }
 
 
-ByteArray ByteArray::toLower() const
+Binary Binary::toLower() const
 {
-	ByteArray result = ByteArray::uninitialized(length());
+	Binary result = Binary::uninitialized(length());
 
 	std::transform(begin_, end_, result.begin_, ::tolower);
 	return result;
 }
 
 
-int ByteArray::resize(size_t newLength)
+int Binary::resize(size_t newLength)
 {
 	int delta = newLength - length();
 
@@ -1538,7 +1538,7 @@ int ByteArray::resize(size_t newLength)
 }
 
 
-int ByteArray::resize(size_t newLength, char value)
+int Binary::resize(size_t newLength, char value)
 {
 	int delta = resize(newLength);
 
@@ -1551,7 +1551,7 @@ int ByteArray::resize(size_t newLength, char value)
 }
 
 
-ByteArray::Buffer* ByteArray::sharedNull()
+Binary::Buffer* Binary::sharedNull()
 {
 	if(!sharedNull_)
 		sharedNull_.reset(new Buffer());
@@ -1560,16 +1560,16 @@ ByteArray::Buffer* ByteArray::sharedNull()
 }
 
 
-ByteArray ByteArray::uninitialized(size_t size)
+Binary Binary::uninitialized(size_t size)
 {
-	ByteArray result = ByteArray(Buffer::allocate(size));
+	Binary result = Binary(Buffer::allocate(size));
 	result.begin_ = result.buffer_->beginFor(size);
 	result.end_ = result.begin_ + size;
 	return result;
 }
 
 
-ByteArray::ByteArray(Buffer* buffer) :
+Binary::Binary(Buffer* buffer) :
 	buffer_(buffer),
 	begin_(nullptr),
 	end_(nullptr)
@@ -1577,7 +1577,7 @@ ByteArray::ByteArray(Buffer* buffer) :
 }
 
 
-void ByteArray::makeUnique()
+void Binary::makeUnique()
 {
 	if(!buffer_->isUnique()) {
 		Buffer* newBuffer = Buffer::allocate(length());
@@ -1595,82 +1595,82 @@ void ByteArray::makeUnique()
 }
 
 
-ByteArray::operator const char*() const
+Binary::operator const char*() const
 {
 	return begin_;
 }
 
 
-ByteArray::operator const void*() const
+Binary::operator const void*() const
 {
 	return begin_;
 }
 
 
-bool operator==(const char* string, const ByteArray& array)
+bool operator==(const char* string, const Binary& array)
 {
 	return array == string;
 }
 
 
-bool operator!=(const char* string, const ByteArray& array)
+bool operator!=(const char* string, const Binary& array)
 {
 	return array != string;
 }
 
 
-bool operator<(const char* string, const ByteArray& array)
+bool operator<(const char* string, const Binary& array)
 {
 	return !(array >= string);
 }
 
 
-bool operator>(const char* string, const ByteArray& array)
+bool operator>(const char* string, const Binary& array)
 {
 	return !(array <= string);
 }
 
 
-bool operator<=(const char* string, const ByteArray& array)
+bool operator<=(const char* string, const Binary& array)
 {
 	return !(array > string);
 }
 
 
-bool operator>=(const char* string, const ByteArray& array)
+bool operator>=(const char* string, const Binary& array)
 {
 	return !(array < string);
 }
 
 
-ByteArray operator+(const ByteArray& a1, const ByteArray& a2)
+Binary operator+(const Binary& a1, const Binary& a2)
 {
-	ByteArray result = a1;
+	Binary result = a1;
 	return result += a2;
 }
 
 
-ByteArray operator+(const char* string, const ByteArray& array)
+Binary operator+(const char* string, const Binary& array)
 {
-	return ByteArray(string) += array;
+	return Binary(string) += array;
 }
 
 
-ByteArray operator+(const ByteArray& array, const char* string)
+Binary operator+(const Binary& array, const char* string)
 {
-	return ByteArray(array) += string;
+	return Binary(array) += string;
 }
 
 
-ByteArray operator+(char ch, const ByteArray& array)
+Binary operator+(char ch, const Binary& array)
 {
-	return ByteArray(ch) += array;
+	return Binary(ch) += array;
 }
 
 
-ByteArray operator+(const ByteArray& array, char ch)
+Binary operator+(const Binary& array, char ch)
 {
-	return ByteArray(array) += ch;
+	return Binary(array) += ch;
 }
 
 

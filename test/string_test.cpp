@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tech/bytearray.h>
+#include <tech/binary.h>
 #include <tech/string.h>
 
 
@@ -89,7 +89,7 @@ TEST(StringTest, ConstructionFromU16StringWithSize)
 
 TEST(StringTest, ConstructionFromByteArray)
 {
-	ByteArray ba("This is a test");
+	Binary ba("This is a test");
 	String string(ba);
 
 	ASSERT_FALSE(string.isNull());
