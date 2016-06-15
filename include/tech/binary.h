@@ -2,6 +2,7 @@
 #define TECH_BINARY_H
 
 #include <memory>
+#include <string>
 #include <vector>
 #include <tech/types.h>
 
@@ -26,6 +27,7 @@ public:
 
 	Binary();
 	Binary(const char* string, size_t size = kNoPos);
+	Binary(const std::string& string);
 	Binary(const Binary& other);
 	Binary(char ch);
 	Binary(size_t size, char value);

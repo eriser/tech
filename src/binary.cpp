@@ -123,6 +123,12 @@ Binary::Binary(const char* string, size_t size)
 }
 
 
+Binary::Binary(const std::string& string) :
+	Binary(string.data(), string.size())
+{
+}
+
+
 Binary::Binary(const Binary& other)
 {
 	other.buffer_->acquire();
