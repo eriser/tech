@@ -4,17 +4,17 @@
 namespace Tech {
 
 
-TimeZoneImpl::TimeZoneImpl(const ByteArray& name) :
+TimeZoneImpl::TimeZoneImpl(const Binary& name) :
 	Implementation<TimeZone>(nullptr)
 {
 
 }
 
 
-ByteArray TimeZoneImpl::name() const
+Binary TimeZoneImpl::name() const
 {
 	// FIXME
-	return ByteArray();
+	return Binary();
 }
 
 
@@ -46,10 +46,10 @@ TimeZone TimeZoneImpl::utc()
 }
 
 
-ByteArrayList TimeZoneImpl::availableTimeZones()
+BinaryList TimeZoneImpl::availableTimeZones()
 {
 	// FIXME
-	return ByteArrayList();
+	return BinaryList();
 }
 
 
