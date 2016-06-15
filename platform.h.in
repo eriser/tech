@@ -6,7 +6,7 @@
 
 #cmakedefine PLATFORM_WINDOWS
 #cmakedefine PLATFORM_LINUX
-#cmakedefine PLATFORM_OSX
+#cmakedefine PLATFORM_MACOS
 
 #define PLATFORM_NAME "@PLATFORM_NAME@"
 

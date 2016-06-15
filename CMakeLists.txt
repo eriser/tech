@@ -90,8 +90,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set(PLATFORM_LINUX true CACHE BOOL "Linux platform marker")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set(PLATFORM_NAME "osx")
-	set(PLATFORM_OSX true CACHE BOOL "OSX platform marker")
+	set(PLATFORM_NAME "macos")
+	set(PLATFORM_MACOS true CACHE BOOL "OSX platform marker")
 endif()
 
 configure_file(

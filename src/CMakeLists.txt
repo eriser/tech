@@ -164,10 +164,10 @@ elseif(PLATFORM_WINDOWS)
 		system/timezone_windows.cpp
 		ui/windowsystem_windows.cpp
 	)
-elseif(PLATFORM_OSX)
+elseif(PLATFORM_MACOS)
     list(APPEND SOURCES
-		system/timezone_osx.cpp
-		ui/windowsystem_osx.cpp
+		system/timezone_macos.cpp
+		ui/windowsystem_macos.cpp
 	)
 endif()
 
