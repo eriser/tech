@@ -1,4 +1,4 @@
-#include "../include/tech/item.h"
+#include <tech/item.h>
 
 #include <cassert>
 #include <tech/format.h>
