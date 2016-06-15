@@ -1272,8 +1272,7 @@ Binary& Binary::replace(size_t position, size_t count, const char* after,
 }
 
 
-Binary& Binary::replace(size_t position, size_t count,
-		const Binary& after)
+Binary& Binary::replace(size_t position, size_t count, const Binary& after)
 {
 	return replace(position, count, after.begin_, after.length());
 }
@@ -1322,8 +1321,7 @@ size_t Binary::indexOf(char ch, size_t from) const
 }
 
 
-size_t Binary::lastIndexOf(const char* string, size_t size,
-		size_t from) const
+size_t Binary::lastIndexOf(const char* string, size_t size, size_t from) const
 {
 	if(size == 0)
 		return from;
@@ -1374,7 +1372,7 @@ Binary::Binary(const Binary& other, size_t position, size_t count) :
 }
 
 
-size_t Binary::hashingSearch(const char* string,	size_t size, size_t from) const
+size_t Binary::hashingSearch(const char* string, size_t size, size_t from) const
 {
 	u32 needleHash = 0;
 	u32 haystackHash = 0;
@@ -1404,8 +1402,7 @@ size_t Binary::hashingSearch(const char* string,	size_t size, size_t from) const
 }
 
 
-size_t Binary::hashingReverseSearch(const char* string, size_t size,
-		size_t from) const
+size_t Binary::hashingReverseSearch(const char* string, size_t size, size_t from) const
 {
 	u32 needleHash = 0;
 	u32 haystackHash = 0;
@@ -1467,8 +1464,7 @@ size_t Binary::boyerMooreSearch(const char* string, size_t size, size_t from) co
 }
 
 
-size_t Binary::boyerMooreReverseSearch(const char* string, size_t size,
-		size_t from) const
+size_t Binary::boyerMooreReverseSearch(const char* string, size_t size, size_t from) const
 {
 	const size_t kMaxSkip = Limits<u8>::max();
 	const size_t kTableSize = kMaxSkip + 1;
