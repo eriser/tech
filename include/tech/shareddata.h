@@ -1,7 +1,6 @@
 #ifndef TECH_SHAREDDATA_H
 #define TECH_SHAREDDATA_H
 
-#include <algorithm>
 #include <atomic>
 #include <type_traits>
 
@@ -32,7 +31,7 @@ class SharedDataPointer {
 public:
 	static_assert(std::is_base_of<SharedData, T>::value,
 			"T must be inherited from SharedData");
-	
+
 	using pointer = T*;
 	using element_type = T;
 
