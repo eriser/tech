@@ -297,7 +297,7 @@ Signal<R(A...), K>::Signal(Signal<R(A...), K>&& other)
 {
 	// При перемещении уведомляем все подключенные trackable объекты об изменении адреса
 	// сигнала
-	for(int i = 0; i < slots_.size(); ++i) {
+	for(size_t i = 0; i < slots_.size(); ++i) {
 		Trackable* trackable = getTrackable(i);
 		if(trackable)
 			trackable->updateWatcher(&other, this);
@@ -451,7 +451,7 @@ void Signal<R(A...), K>::disconnect(T* target)
 	if(!target)
 		return;
 
-	for(int i = 0; i < slots_.size(); ++i) {
+	for(size_t i = 0; i < slots_.size(); ++i) {
 		if(slots_[i].first.target() == target) {
 			Trackable* trackable = getTrackable(i);
 			if(trackable)
@@ -483,7 +483,7 @@ void Signal<R(A...), K>::doDisconnect(const Delegate<R(A...)>& delegate)
 {
 	bool isDisconnectAll = delegate.isNull();
 
-	for(uint i = 0; i < slots_.size(); ++i) {
+	for(size_t i = 0; i < slots_.size(); ++i) {
 		if(isDisconnectAll || slots_[i].first == delegate) {
 			Trackable* trackable = getTrackable(i);
 			if(trackable)
@@ -499,7 +499,7 @@ void Signal<R(A...), K>::doDisconnect(const Delegate<R(A...)>& delegate)
 template<typename R, typename K, typename ...A>
 void Signal<R(A...), K>::destroyEvent(Trackable* trackable)
 {
-	for(uint i = 0; i < slots_.size(); ++i) {
+	for(size_t i = 0; i < slots_.size(); ++i) {
 		Trackable* t = getTrackable(i);
 		if(t == trackable) {
 			trackable->unregisterWatcher(this);
@@ -515,7 +515,7 @@ void Signal<R(A...), K>::moveEvent(Trackable* old, Trackable* newTrackable)
 {
 	UNUSED(newTrackable);
 
-	for(uint i = 0; i < slots_.size(); ++i) {
+	for(size_t i = 0; i < slots_.size(); ++i) {
 		Trackable* trackable = getTrackable(i);
 		if(trackable == old) {
 			// TODO
