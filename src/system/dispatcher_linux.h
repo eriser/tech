@@ -2,6 +2,7 @@
 #define TECH_SYSTEM_DISPATCHER_LINUX_H
 
 #include <map>
+#include <unordered_set>
 #include <tech/system/dispatcher.h>
 
 
@@ -20,6 +21,8 @@ public:
 	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
 	bool unregisterHandler(int fd);
 
+	void addDeleter(Dispatcher::AbstractDeleter* deleter);
+
 private:
 	enum class Command {
 		kStopProcessing
@@ -28,6 +31,7 @@ private:
 	int epfd_;
 	int pipeFds_[2];
 	std::map<int, EventHandler> handlersByFd_;
+	std::unordered_set<Box<Dispatcher::AbstractDeleter>> deleters_;
 };
 
 

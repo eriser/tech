@@ -86,6 +86,12 @@ void DispatcherImpl::processEvents()
 			if((eventMask & EPOLLERR) && isHandlerRegistered(fd))
 				it->second(fd, EventType::kError);
 		}
+
+		while(!deleters_.empty()) {
+			auto it = deleters_.begin();
+			it->get()->deleteObject();
+			deleters_.erase(it);
+		}
 	}
 }
 
@@ -171,6 +177,12 @@ bool DispatcherImpl::unregisterHandler(int fd)
 
 	handlersByFd_.erase(it);
 	return true;
+}
+
+
+void DispatcherImpl::addDeleter(Dispatcher::AbstractDeleter* deleter)
+{
+	deleters_.insert(Box<Dispatcher::AbstractDeleter>(deleter));
 }
 
 

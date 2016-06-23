@@ -51,4 +51,10 @@ bool Dispatcher::unregisterHandler(int fd)
 }
 
 
+void Dispatcher::addDeleter(AbstractDeleter* deleter)
+{
+	return impl()->addDeleter(deleter);
+}
+
+
 } // namespace Tech

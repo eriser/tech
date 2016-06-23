@@ -38,8 +38,46 @@ public:
 	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
 	bool unregisterHandler(int fd);
 
+
+	class AbstractDeleter {
+	public:
+		virtual ~AbstractDeleter() = default;
+		virtual void deleteObject() = 0;
+	};
+
+	template<class C>
+	class Deleter : public AbstractDeleter {
+	public:
+		Deleter(C* ptr) :
+			ptr_(ptr)
+		{
+		}
+
+		~Deleter()
+		{
+			if(ptr_)
+				deleteObject();
+		}
+
+		void deleteObject() override
+		{
+			delete ptr_;
+			ptr_ = nullptr;
+		}
+
+	private:
+		C* ptr_;
+	};
+
+	template<typename T>
+	void scheduleDeletion(T* object)
+	{
+		addDeleter(new Deleter<T>(object));
+	}
+
 private:
 	Dispatcher();
+	void addDeleter(AbstractDeleter* deleter);
 };
 
 
