@@ -51,7 +51,7 @@ void DispatcherImpl::processEvents()
 
 	while(running) {
 		int count = epoll_wait(epfd_, events, kEventCount, -1);
-		if(count == -1) {
+		if(count < 0 && errno != EINTR) {
 			LOG("epoll_wait call failed: {}", ::strerror(errno));
 			return;
 		}
