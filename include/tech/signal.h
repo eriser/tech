@@ -88,7 +88,7 @@ public:
 	/**
 	 *
 	 */
-	Signal<R(A...), K>& operator=(const Signal<R(A...), K>& other);
+	Signal<R(A...), K>& operator=(Signal<R(A...), K>&& other);
 
 	/**
 	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
@@ -315,9 +315,15 @@ Signal<R(A...), K>::~Signal()
 
 
 template<typename R, typename K, typename ...A>
-Signal<R(A...), K>& Signal<R(A...), K>::operator=(const Signal<R(A...), K>& other)
+Signal<R(A...), K>& Signal<R(A...), K>::operator=(Signal<R(A...), K>&& other)
 {
-	*this = other;
+	for(size_t i = 0; i < slots_.size(); ++i) {
+		Trackable* trackable = getTrackable(i);
+		if(trackable)
+			trackable->updateWatcher(&other, this);
+	}
+
+	slots_.swap(other.slots_);
 	return *this;
 }
 
