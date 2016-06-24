@@ -127,7 +127,10 @@ Item::Item(const Tech::String& string) :
 }
 
 
-Item::Item(const Item& item)
+Item::Item(const Item& item) :
+	rawValue_(nullptr),
+	type_(ItemType::kNull),
+	tag_(0)
 {
 	*this = item;
 }
