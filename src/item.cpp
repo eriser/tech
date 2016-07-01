@@ -392,7 +392,7 @@ bool Item::operator!=(const Item& other) const
 
 bool Item::operator!() const
 {
-	return !isNull();
+	return isNull();
 }
 
 
