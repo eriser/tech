@@ -36,7 +36,7 @@ public:
 
 	bool isHandlerRegistered(int fd) const;
 	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
-	bool unregisterHandler(int fd);
+	bool deregisterHandler(int fd);
 
 
 	class AbstractDeleter {

@@ -45,9 +45,9 @@ bool Dispatcher::registerHandler(int fd, Flags<EventType> events,
 }
 
 
-bool Dispatcher::unregisterHandler(int fd)
+bool Dispatcher::deregisterHandler(int fd)
 {
-	return impl()->unregisterHandler(fd);
+	return impl()->deregisterHandler(fd);
 }
 
 

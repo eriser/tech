@@ -149,7 +149,7 @@ bool DispatcherImpl::registerHandler(int fd, Flags<EventType> events,
 }
 
 
-bool DispatcherImpl::unregisterHandler(int fd)
+bool DispatcherImpl::deregisterHandler(int fd)
 {
 	auto it = handlersByFd_.find(fd);
 	if(it == handlersByFd_.end())

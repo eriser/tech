@@ -26,7 +26,7 @@ TimerImpl::TimerImpl(Timer* iface) :
 
 TimerImpl::~TimerImpl()
 {
-	Dispatcher::instance()->unregisterHandler(handle_);
+	Dispatcher::instance()->deregisterHandler(handle_);
 	close(handle_);
 }
 
