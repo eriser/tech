@@ -44,16 +44,16 @@ private:
 
 class SignalSender {
 public:
-	static void* get()
+	template<typename T = void>
+	operator T*()
 	{
-		return sender_;
+		static_assert(std::is_void<T>::value || std::is_class<T>::value);
+		return static_cast<T*>(sender_);
 	}
 
 private:
 	friend class TrackableWatcher;
 	static thread_local void* sender_;
-
-	SignalSender() = default;
 
 	static void set(void* sender)
 	{
@@ -288,10 +288,12 @@ inline
 void Trackable::registerWatcher(TrackableWatcher* watcher)
 {
 	auto it = watchers_.find(watcher);
-	if(it == watchers_.end())
+	if(it == watchers_.end()) {
 		watchers_.emplace(std::make_pair(watcher, 1));
-	else
+	}
+	else {
 		it->second++;
+	}
 }
 
 
@@ -378,7 +380,7 @@ template<typename T, EnableIf<
 		std::is_void<T>>...>
 void Signal<R(A...), K>::operator()(void* sender, A... args) const
 {
-	void* original = SignalSender::get();
+	void* original = SignalSender();
 	setCurrentSender(sender);
 
 	for(auto& slot : slots_)
@@ -407,7 +409,7 @@ template<typename T = K, EnableIf<
 void Signal<R(A...), K>::operator()(T key, void* sender, A... args) const
 {
 	UNUSED(key);
-	void* original = SignalSender::get();
+	void* original = SignalSender();
 	setCurrentSender(sender);
 
 	for(auto& slot : slots_)
