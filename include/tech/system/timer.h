@@ -31,8 +31,8 @@ public:
 	void start(Duration timeout, bool periodic = false);
 	void stop();
 
-	// signal void timeout(Timer* sender)
-	Signal<void(Timer* sender), PassKey<TimerImpl>> timeout;
+	// signal void timeout()
+	Signal<void(), PassKey<TimerImpl>> timeout;
 };
 
 
