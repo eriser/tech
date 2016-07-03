@@ -11,6 +11,7 @@ set(SOURCES
 	item.cpp
 	itemcodec.cpp
     logger.cpp
+	signal.cpp
     string.cpp
     thread.cpp
 	)

@@ -42,6 +42,26 @@ private:
 };
 
 
+class SignalSender {
+public:
+	static void* get()
+	{
+		return sender_;
+	}
+
+private:
+	friend class TrackableWatcher;
+	static thread_local void* sender_;
+
+	SignalSender() = default;
+
+	static void set(void* sender)
+	{
+		sender_ = sender;
+	}
+};
+
+
 /**
  * Наблюдатель за объектами-потомками Trackable.
  */
@@ -50,7 +70,13 @@ public:
 	virtual ~TrackableWatcher() = default;
 	virtual void destroyEvent(Trackable* trackable) = 0;
 	virtual void moveEvent(Trackable* old, Trackable* trackable) = 0;
+
+	void setCurrentSender(void* sender) const
+	{
+		SignalSender::set(sender);
+	}
 };
+
 
 
 /**
@@ -99,6 +125,10 @@ public:
 			std::is_void<T>>...>
 	void operator()(A... args) const;
 
+	template<typename T = K, EnableIf<
+			std::is_void<T>>...>
+	void operator()(void* sender, A... args) const;
+
 	/**
 	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
 	 * аргументов. Данная версия функции присутствует только когда Signal инстанцируется
@@ -107,6 +137,11 @@ public:
 	template<typename T = K, EnableIf<
 			Not<std::is_void<T>>>...>
 	void operator()(T key, A... args) const;
+
+
+	template<typename T = K, EnableIf<
+			Not<std::is_void<T>>>...>
+	void operator()(T key, void* sender, A... args) const;
 
 
 	/**
@@ -340,6 +375,21 @@ void Signal<R(A...), K>::operator()(A... args) const
 
 template<typename R, typename K, typename ...A>
 template<typename T, EnableIf<
+		std::is_void<T>>...>
+void Signal<R(A...), K>::operator()(void* sender, A... args) const
+{
+	void* original = SignalSender::get();
+	setCurrentSender(sender);
+
+	for(auto& slot : slots_)
+		slot.first(args...);
+
+	setCurrentSender(original);
+}
+
+
+template<typename R, typename K, typename ...A>
+template<typename T, EnableIf<
 		Not<std::is_void<T>>>...>
 void Signal<R(A...), K>::operator()(T key, A... args) const
 {
@@ -347,6 +397,23 @@ void Signal<R(A...), K>::operator()(T key, A... args) const
 
 	for(auto& slot : slots_)
 		slot.first(args...);
+}
+
+
+
+template<typename R, typename K, typename ...A>
+template<typename T = K, EnableIf<
+		Not<std::is_void<T>>>...>
+void Signal<R(A...), K>::operator()(T key, void* sender, A... args) const
+{
+	UNUSED(key);
+	void* original = SignalSender::get();
+	setCurrentSender(sender);
+
+	for(auto& slot : slots_)
+		slot.first(args...);
+
+	setCurrentSender(original);
 }
 
 
