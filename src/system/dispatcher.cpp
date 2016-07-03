@@ -38,10 +38,10 @@ bool Dispatcher::isHandlerRegistered(int fd) const
 }
 
 
-bool Dispatcher::registerHandler(int fd, Flags<EventType> events,
+bool Dispatcher::registerHandler(int fd, Flags<EventMask> mask,
 		const EventHandler& handler)
 {
-	return impl()->registerHandler(fd, events, handler);
+	return impl()->registerHandler(fd, mask, handler);
 }
 
 

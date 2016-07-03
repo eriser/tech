@@ -18,7 +18,7 @@ public:
 	void stopProcessing();
 
 	bool isHandlerRegistered(int fd) const;
-	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
+	bool registerHandler(int fd, Flags<EventMask> mask, const EventHandler& handler);
 	bool deregisterHandler(int fd);
 
 	void addDeleter(Dispatcher::AbstractDeleter* deleter);

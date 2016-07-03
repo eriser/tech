@@ -19,8 +19,8 @@ TimerImpl::TimerImpl(Timer* iface) :
 		handle_ = Timer::kInvalidHandle;
 	}
 
-	Delegate<void(int, EventType)> handler(this, &TimerImpl::handleTimeout);
-	Dispatcher::instance()->registerHandler(handle_, EventType::kRead, handler);
+	Delegate<void(int, EventMask)> handler(this, &TimerImpl::handleTimeout);
+	Dispatcher::instance()->registerHandler(handle_, EventMask::kRead, handler);
 }
 
 
@@ -83,9 +83,9 @@ void TimerImpl::stop()
 }
 
 
-void TimerImpl::handleTimeout(int handle, EventType event)
+void TimerImpl::handleTimeout(int handle, EventMask event)
 {
-	if(handle == handle_ && event == EventType::kRead) {
+	if(handle == handle_ && event == EventMask::kRead) {
 		u64 value;
 		read(handle_, &value, sizeof(value));
 

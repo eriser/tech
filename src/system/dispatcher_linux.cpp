@@ -73,18 +73,18 @@ void DispatcherImpl::processEvents()
 			}
 
 			// An event handler can unregister itself, thus we need to check its validity
-			// every time wi use it
+			// every time we use it
 			if((eventMask & EPOLLIN) && isHandlerRegistered(fd))
-				it->second(fd, EventType::kRead);
+				it->second(fd, EventMask::kRead);
 
 			if((eventMask & EPOLLOUT) && isHandlerRegistered(fd))
-				it->second(fd, EventType::kWrite);
+				it->second(fd, EventMask::kWrite);
 
 			if((eventMask & EPOLLRDHUP) && isHandlerRegistered(fd))
-				it->second(fd, EventType::kClose);
+				it->second(fd, EventMask::kClose);
 
 			if((eventMask & EPOLLERR) && isHandlerRegistered(fd))
-				it->second(fd, EventType::kError);
+				it->second(fd, EventMask::kError);
 		}
 
 		while(!deleters_.empty()) {
@@ -109,17 +109,17 @@ bool DispatcherImpl::isHandlerRegistered(int fd) const
 }
 
 
-bool DispatcherImpl::registerHandler(int fd, Flags<EventType> events,
+bool DispatcherImpl::registerHandler(int fd, Flags<EventMask> mask,
 		const EventHandler& handler)
 {
-	if(fd < 0 || !events) {
-		LOG("Unable to register event handler for empty events.");
+	if(fd < 0 || !mask) {
+		LOG("Unable to register event handler for empty mask");
 		return false;
 	}
 
 	auto it = handlersByFd_.find(fd);
 	if(it != handlersByFd_.end()) {
-		LOG("Event handler is already registered.");
+		LOG("Event handler is already registered");
 		return false;
 	}
 
@@ -127,16 +127,16 @@ bool DispatcherImpl::registerHandler(int fd, Flags<EventType> events,
 	ev.data.fd = fd;
 	ev.events = 0;
 
-	if(events & EventType::kRead)
+	if(mask & EventMask::kRead)
 		ev.events |= EPOLLIN | EPOLLET;
 
-	if(events & EventType::kWrite)
+	if(mask & EventMask::kWrite)
 		ev.events |= EPOLLOUT | EPOLLET;
 
-	if(events & EventType::kClose)
+	if(mask & EventMask::kClose)
 		ev.events |= EPOLLRDHUP | EPOLLET;
 
-	if(events & EventType::kError)
+	if(mask & EventMask::kError)
 		ev.events |= EPOLLERR | EPOLLET;
 
 	if(epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &ev) == -1 && errno != EEXIST) {

@@ -9,7 +9,7 @@
 namespace Tech {
 
 
-enum class EventType;
+enum class EventMask;
 class Timer;
 
 
@@ -30,7 +30,7 @@ public:
 private:
 	Timer::Handle handle_;
 
-	void handleTimeout(int handle, EventType event);
+	void handleTimeout(int handle, EventMask event);
 };
 
 

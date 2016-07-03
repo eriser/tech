@@ -13,7 +13,7 @@ namespace Tech {
 class DispatcherImpl;
 
 
-enum class EventType {
+enum class EventMask {
 	kRead  = 0x01,
 	kWrite = 0x02,
 	kClose = 0x04,
@@ -21,7 +21,7 @@ enum class EventType {
 };
 
 
-using EventHandler = Delegate<void(int, EventType)>;
+using EventHandler = Delegate<void(int, EventMask)>;
 
 
 class Dispatcher : public Trackable, public Interface<DispatcherImpl> {
@@ -35,7 +35,7 @@ public:
 	void stopProcessing();
 
 	bool isHandlerRegistered(int fd) const;
-	bool registerHandler(int fd, Flags<EventType> events, const EventHandler& handler);
+	bool registerHandler(int fd, Flags<EventMask> mask, const EventHandler& handler);
 	bool deregisterHandler(int fd);
 
 
@@ -84,7 +84,7 @@ private:
 } // namespace Tech
 
 
-DECLARE_FLAG_OPERATORS(Tech::EventType);
+DECLARE_FLAG_OPERATORS(Tech::EventMask);
 
 
 #endif // TECH_SYSTEM_DISPATCHER_H
