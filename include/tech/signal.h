@@ -125,6 +125,12 @@ public:
 			std::is_void<T>>...>
 	void operator()(A... args) const;
 
+	/**
+	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
+	 * аргументов и устанавливая @p sender в качестве текущего отправителя сигнала.
+	 * Данная версия функции присутствует только когда Signal инстанцируется без указания
+	 * ключа доступа @p K.
+	 */
 	template<typename T = K, EnableIf<
 			std::is_void<T>>...>
 	void operator()(void* sender, A... args) const;
@@ -139,6 +145,12 @@ public:
 	void operator()(T key, A... args) const;
 
 
+	/**
+	 * Производит вызов всех подключенных функций, передавая им @p args в качестве
+	 * аргументов и устанавливая @p sender в качестве текущего отправителя сигнала.
+	 * Данная версия функции присутствует только когда Signal инстанцируется с указанием
+	 * ключа доступа @p K.
+	 */
 	template<typename T = K, EnableIf<
 			Not<std::is_void<T>>>...>
 	void operator()(T key, void* sender, A... args) const;
